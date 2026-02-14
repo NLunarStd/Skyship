@@ -36,7 +36,7 @@ public class GameManager : MonoBehaviour
 
         if (Physics.Raycast(cameraPos, dir, out hit))
         {
-            Debug.Log($"Hit object: {hit.collider.gameObject.name}, Layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
+            //Debug.Log($"Hit object: {hit.collider.gameObject.name}, Layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
             if (hit.collider.gameObject.layer == LayerMask.NameToLayer("DeckTop"))
             {
                 EventManager.Publish(new CullTopDeckEvent

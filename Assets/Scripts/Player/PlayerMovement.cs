@@ -1,19 +1,21 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PhysicsMovementForTesting : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
     public float sprintSpeed = 9f;
     public float rotationSpeed = 10f;
-    public float jumpForce = 8f; 
+    public float jumpForce = 8f;
     public float groundDrag = 5f;
 
     [Header("State Flags")]
     public bool isUsingMode = false;
     public bool isGrounded;
+    public bool isStunned = false; 
 
     [Header("Detection")]
     public float playerHeight = 2f;
@@ -23,22 +25,36 @@ public class PhysicsMovementForTesting : MonoBehaviour
     private Vector2 moveInput;
     private bool sprintPressed;
 
+    [Header("Ladder Settings")]
+    public float climbSpeed = 5f;
+    public bool isClimbing { get; private set; }
+
+
     [Header("Input Action Reference")]
     public InputActionReference moveAction;
     public InputActionReference jumpAction;
     public InputActionReference sprintAction;
+    private void OnEnable()
+    {
+        EventManager.Subscribe<CharacterStunnedEvent>(OnPlayerStunned);
+    }
+
+    private void OnDisable()
+    {
+        EventManager.UnSubscribe<CharacterStunnedEvent>(OnPlayerStunned);
+    }
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true; 
+        rb.freezeRotation = true;
     }
 
     void Update()
     {
         isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer);
 
-        if (!isUsingMode)
+        if (!isUsingMode && !isStunned)
         {
             moveInput = moveAction.action.ReadValue<Vector2>();
             sprintPressed = sprintAction.action.IsPressed();
@@ -58,13 +74,46 @@ public class PhysicsMovementForTesting : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isUsingMode)
+        if (!isUsingMode && !isStunned)
         {
-            MovePlayer();
-            RotatePlayer();
+            HandleMovement();
+        }
+        else if (isStunned)
+        {
+            rb.linearVelocity = new Vector3(0, rb.linearVelocity.y, 0);
         }
     }
+    private void HandleMovement()
+    {
+        if (isClimbing)
+        {
+            // Ignore normal movement and gravity
+            float verticalInput = moveAction.action.ReadValue<Vector2>().y;
+            rb.linearVelocity = new Vector3(0, verticalInput * climbSpeed, 0);
 
+            // Exit if jump is pressed
+            if (jumpAction.action.triggered) ExitLadder();
+            return;
+        }
+
+        MovePlayer();
+        RotatePlayer();
+    }
+    public void EnterLadder(Transform ladderTransform)
+    {
+        isClimbing = true;
+        rb.useGravity = false;
+        rb.linearVelocity = Vector3.zero;
+
+        Vector3 flatForward = Vector3.ProjectOnPlane(ladderTransform.forward, Vector3.up); 
+        transform.rotation = Quaternion.LookRotation(ladderTransform.forward);
+    }
+
+    public void ExitLadder()
+    {
+        isClimbing = false;
+        rb.useGravity = true;
+    }
     private void MovePlayer()
     {
         bool canSprint = sprintPressed && isGrounded;
@@ -102,11 +151,28 @@ public class PhysicsMovementForTesting : MonoBehaviour
         if (isGrounded)
             rb.linearDamping = groundDrag;
         else
-            rb.linearDamping = 0; 
+            rb.linearDamping = 0;
     }
 
     public void SetUsingMode(bool value)
     {
         isUsingMode = value;
+    }
+    private IEnumerator StunRoutine(float duration)
+    {
+        isStunned = true;
+
+        if (isClimbing) ExitLadder();
+
+        yield return new WaitForSeconds(duration);
+
+        isStunned = false;
+    }
+    private void OnPlayerStunned(CharacterStunnedEvent e)
+    {
+        if (e.Victim == this.gameObject)
+        {
+            StartCoroutine(StunRoutine(e.Duration));
+        }
     }
 }
