@@ -28,6 +28,11 @@ public class CameraFollow : MonoBehaviour
     public float maxZoom = 1f;
 
 
+    private void Start()
+    {
+        
+    }
+
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Q))
@@ -71,8 +76,8 @@ public class CameraFollow : MonoBehaviour
         // ? lerp มุมก้ม
         float angle = Mathf.Lerp(farAngle, nearAngle, zoom);
         transform.rotation = Quaternion.Euler(angle, currentYAngle, 0);
-    }
 
+    }
 
 
 }

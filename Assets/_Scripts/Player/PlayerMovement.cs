@@ -42,6 +42,6 @@ public class PlayerMovement : MonoBehaviour
         {
             Quaternion toRotation = Quaternion.LookRotation(movement);
             rb.rotation = Quaternion.Slerp(rb.rotation, toRotation, 0.2f);
-        }
+        }     
     }
 }

@@ -13,4 +13,10 @@ public static class EventManager
     {
         OnExitShipControl?.Invoke(); 
     }
+
+    public static event Action<bool> OnBoardShip;
+    public static void RaiseBoardShip(bool value)
+    {
+        OnBoardShip?.Invoke(value);
+    }
 }

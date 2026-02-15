@@ -117,6 +117,7 @@ public class PlayerInteract : MonoBehaviour
 
             Collider col = carriedObject.GetComponent<Collider>();
             col.enabled = false;
+
         }
     }
 
@@ -187,6 +188,7 @@ public class PlayerInteract : MonoBehaviour
         rb.AddForce(dir * force, ForceMode.Impulse);
 
         carriedObject = null;
+
     }
 
 

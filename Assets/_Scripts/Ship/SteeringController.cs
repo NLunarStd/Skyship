@@ -45,6 +45,18 @@ public class SteeringController : MonoBehaviour
 
             ship.rudderAngle = Mathf.Clamp(ship.rudderAngle, -ship.maxRudder, ship.maxRudder);
         }
+        else if (!ShipControlMode)
+        {
+            if(ship.rudderAngle != 0f)
+            {
+                ship.rudderAngle = Mathf.MoveTowards(
+                    ship.rudderAngle,
+                    0f,
+                    returnSpeed * Time.deltaTime
+                );
+            }
+        }
+
     }
 
     void EnterShipControlMode()
