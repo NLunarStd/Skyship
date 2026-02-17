@@ -10,14 +10,14 @@ public class SteeringController : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.OnEnterShipControl += EnterShipControlMode;
-        EventManager.OnExitShipControl += ExitShipControlMode;
+        EventManager2.OnEnterShipControl += EnterShipControlMode;
+        EventManager2.OnExitShipControl += ExitShipControlMode;
     }
 
     private void OnDisable()
     {
-        EventManager.OnEnterShipControl -= EnterShipControlMode;
-        EventManager.OnExitShipControl -= ExitShipControlMode;  
+        EventManager2.OnEnterShipControl -= EnterShipControlMode;
+        EventManager2.OnExitShipControl -= ExitShipControlMode;  
     }
 
     void Update()

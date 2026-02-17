@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class PlayerInteract : MonoBehaviour
 {
@@ -24,6 +25,9 @@ public class PlayerInteract : MonoBehaviour
     public Image chargeFill;
     public GameObject chargeUI;
 
+    [Header("Input Action Reference")]
+    public InputActionReference pickupAction;
+
     private void Start()
     {
         chargeUI.SetActive(false);
@@ -34,13 +38,13 @@ public class PlayerInteract : MonoBehaviour
         {
             UpdateHighlight();
 
-            if (Input.GetKeyDown(KeyCode.F))
+            if (pickupAction.action.WasPerformedThisFrame()) // Get key down
                 TryPickup();
         }
         else
         {
             // เริ่มกด
-            if (Input.GetKeyDown(KeyCode.F))
+            if (pickupAction.action.WasPerformedThisFrame())
             {
                 isHoldingKey = true;
                 holdTime = 0f;
@@ -49,7 +53,7 @@ public class PlayerInteract : MonoBehaviour
             }
 
             // กดค้าง
-            if (Input.GetKey(KeyCode.F) && isHoldingKey)
+            if (pickupAction.action.IsPressed() && isHoldingKey)
             {
                 holdTime += Time.deltaTime;
 
@@ -62,7 +66,7 @@ public class PlayerInteract : MonoBehaviour
             }
 
             // ปล่อยปุ่ม
-            if (Input.GetKeyUp(KeyCode.F) && isHoldingKey)
+            if (pickupAction.action.WasReleasedThisFrame() && isHoldingKey)
             {
                 isHoldingKey = false;
 
@@ -93,6 +97,11 @@ public class PlayerInteract : MonoBehaviour
         foreach (Collider hit in hits)
         {
             if (!hit.CompareTag("Pickup")) continue;
+
+            Vector3 dirToObject = (hit.transform.position - transform.position).normalized;
+            float dot = Vector3.Dot(transform.forward, dirToObject);
+
+            if (dot < 0.5f) continue; // only object that is in front
 
             float distance = Vector3.Distance(transform.position, hit.transform.position);
 
@@ -144,6 +153,11 @@ public class PlayerInteract : MonoBehaviour
         foreach (Collider hit in hits)
         {
             if (!hit.CompareTag("Pickup")) continue;
+
+            Vector3 dirToObject = (hit.transform.position - transform.position).normalized;
+            float dot = Vector3.Dot(transform.forward, dirToObject);
+
+            if (dot < 0.5f) continue; // only object that is in front
 
             float distance = Vector3.Distance(holdPoint.position, hit.transform.position);
 

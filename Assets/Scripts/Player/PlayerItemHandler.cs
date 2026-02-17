@@ -108,7 +108,7 @@ public class PlayerItemHandler : MonoBehaviour
             if (pickable == null) return; // Exit early if not pickable at all
 
             bool isEnemy = hit.collider.GetComponent<EnemyHealth>() != null;
-            bool isPlayer = hit.collider.GetComponent<PlayerMovement>() != null;
+            bool isPlayer = hit.collider.GetComponent<PlayerMovement_old>() != null;
             var targetStun = hit.collider.GetComponent<StunHandler>();
 
             bool canPickEnemy = isEnemy && (targetStun != null && targetStun.IsStunned);

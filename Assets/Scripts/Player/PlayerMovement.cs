@@ -34,6 +34,7 @@ public class PlayerMovement : MonoBehaviour
     public InputActionReference moveAction;
     public InputActionReference jumpAction;
     public InputActionReference sprintAction;
+
     private void OnEnable()
     {
         EventManager.Subscribe<CharacterStunnedEvent>(OnPlayerStunned);
@@ -70,6 +71,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         ControlDrag();
+
     }
 
     void FixedUpdate()

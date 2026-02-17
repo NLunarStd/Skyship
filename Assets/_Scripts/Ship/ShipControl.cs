@@ -17,7 +17,7 @@ public class ShipController : MonoBehaviour
     public float maxRudder = 45f;        // เอียงได้สุด
     public float turnSpeed = 20f;        // เรือหมุนแรงแค่ไหน
 
-    Rigidbody rb;
+    Rigidbody rb; 
 
     private void Awake()
     {
@@ -53,15 +53,16 @@ public class ShipController : MonoBehaviour
     void SailShip()
     {
         speedPercent = GetSpeedPercent();
+
         // ===== เดินหน้า =====
-        Vector3 move = transform.forward * moveSpeed *speedPercent* Time.fixedDeltaTime;
-        rb.MovePosition(rb.position + move);
+        Vector3 move = transform.forward * moveSpeed * speedPercent * Time.fixedDeltaTime;
+        transform.position += move;
 
         // ===== หมุน =====
         float turn = rudderAngle / maxRudder;
-        Quaternion rot = Quaternion.Euler(0f, turn * turnSpeed * Time.fixedDeltaTime, 0f);
+        float rotation = turn * turnSpeed * Time.fixedDeltaTime;
 
-        rb.MoveRotation(rb.rotation * rot);
+        transform.Rotate(0f, rotation, 0f);
     }
 
     void DrainFuel()
@@ -95,5 +96,29 @@ public class ShipController : MonoBehaviour
         return Mathf.Lerp(0.2f, 1f, t);
     }
 
+    void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            other.gameObject.transform.SetParent(transform, true);  
+        }
+        if (other.CompareTag("Pickup"))
+        {
+            other.gameObject.transform.SetParent(transform, true);
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            other.transform.SetParent(null);
+        }
+
+        if (other.CompareTag("Pickup"))
+        {
+            other.transform.SetParent(null);
+        }
+    }
 
 }

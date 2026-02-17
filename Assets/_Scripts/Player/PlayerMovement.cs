@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement_old : MonoBehaviour
 {
     public float moveSpeed = 5f;
     public Transform cameraTransform;

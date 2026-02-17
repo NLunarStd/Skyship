@@ -1,6 +1,6 @@
 using System;
 
-public static class EventManager
+public static class EventManager2
 {
     public static event Action OnEnterShipControl;
     public static void RaiseEnterShipControl()

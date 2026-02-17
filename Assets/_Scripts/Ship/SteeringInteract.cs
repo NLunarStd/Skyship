@@ -70,19 +70,19 @@ public class SteeringInteract : MonoBehaviour
             return;
         }
        
-        PlayerMovement playerMove = currentPlayer.GetComponent<PlayerMovement>();
+        PlayerMovement_old playerMove = currentPlayer.GetComponent<PlayerMovement_old>();
         playerMove.enabled = false;
 
         PlayerInteract playerInter = currentPlayer.GetComponent<PlayerInteract>();
         playerInter.enabled = false;
 
-        EventManager.RaiseEnterShipControl();
+        EventManager2.RaiseEnterShipControl();
 
     }
 
     void ExitShipControl()
     {
-        PlayerMovement playerMove = currentPlayer.GetComponent<PlayerMovement>();
+        PlayerMovement_old playerMove = currentPlayer.GetComponent<PlayerMovement_old>();
         PlayerInteract playerInter = currentPlayer.GetComponent<PlayerInteract>();
 
         if (playerMove != null)
@@ -94,6 +94,6 @@ public class SteeringInteract : MonoBehaviour
             playerInter.enabled = true;
         }
 
-        EventManager.RaiseExitShipContorl();
+        EventManager2.RaiseExitShipContorl();
     }
 }
