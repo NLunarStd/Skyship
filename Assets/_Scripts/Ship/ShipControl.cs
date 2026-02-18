@@ -17,8 +17,15 @@ public class ShipController : MonoBehaviour
     public float maxRudder = 45f;        // เอียงได้สุด
     public float turnSpeed = 20f;        // เรือหมุนแรงแค่ไหน
 
-    Rigidbody rb; 
-
+    Rigidbody rb;
+    private void OnEnable()
+    {
+        EventManager.Subscribe<ShipGetFuel>(IncreaseFuel);
+    }
+    private void OnDisable()
+    {
+        EventManager.UnSubscribe<ShipGetFuel>(IncreaseFuel);
+    }
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
@@ -77,7 +84,7 @@ public class ShipController : MonoBehaviour
         if (fuel <= 0f)
         {
             fuel = 0f;
-            EngineOn = false;
+            //EngineOn = false;
         }
     }
 
@@ -86,7 +93,7 @@ public class ShipController : MonoBehaviour
         float percent = fuel / maxfuel; // สมมติ max = 100
 
         if (percent <= 0f)
-            return 0f;
+            return 0.2f;   // even fuel is 0, the ship will still sail with 20% speed
 
         if (percent >= 0.1f)
             return 1f;
@@ -119,6 +126,15 @@ public class ShipController : MonoBehaviour
         {
             other.transform.SetParent(null);
         }
+    }
+
+    void IncreaseFuel(ShipGetFuel e)
+    {
+        fuel += e.fuelAmount;
+        if (fuel > 100f)
+            fuel = 100f;
+        Debug.Log("Added Fuel to the ship: + " + e.fuelAmount+
+            " Now Fuel is at: "+fuel) ;
     }
 
 }

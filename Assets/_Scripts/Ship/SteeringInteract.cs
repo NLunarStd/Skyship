@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class SteeringInteract : MonoBehaviour
 {
@@ -15,17 +16,22 @@ public class SteeringInteract : MonoBehaviour
         outline.enabled = false;
     }
 
+    [Header("Input Action Reference")]
+    public InputActionReference controlRudder;
+    public InputActionReference exitRudder;
+
+
     void Update()
     {
         CheckPlayer();
         Debug.DrawRay(rayPoint.position, rayPoint.forward * interactDistance, Color.red);
 
-        if (currentPlayer != null && Input.GetKeyDown(KeyCode.F))
+        if (currentPlayer != null && controlRudder.action.WasPerformedThisFrame())
         {
             EnterShipControl();
         }
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (exitRudder.action.WasPerformedThisFrame())
         {
             ExitShipControl();
         }
@@ -70,19 +76,21 @@ public class SteeringInteract : MonoBehaviour
             return;
         }
        
-        PlayerMovement_old playerMove = currentPlayer.GetComponent<PlayerMovement_old>();
+        PlayerMovement playerMove = currentPlayer.GetComponent<PlayerMovement>();
         playerMove.enabled = false;
 
         PlayerInteract playerInter = currentPlayer.GetComponent<PlayerInteract>();
         playerInter.enabled = false;
 
-        EventManager2.RaiseEnterShipControl();
+        //EventManager2.RaiseEnterShipControl();
+
+        EventManager.Publish(new CharacterControlRudderEvent(true));
 
     }
 
     void ExitShipControl()
     {
-        PlayerMovement_old playerMove = currentPlayer.GetComponent<PlayerMovement_old>();
+        PlayerMovement playerMove = currentPlayer.GetComponent<PlayerMovement>();
         PlayerInteract playerInter = currentPlayer.GetComponent<PlayerInteract>();
 
         if (playerMove != null)
@@ -94,6 +102,8 @@ public class SteeringInteract : MonoBehaviour
             playerInter.enabled = true;
         }
 
-        EventManager2.RaiseExitShipContorl();
+        //EventManager2.RaiseExitShipContorl();
+
+        EventManager.Publish(new CharacterControlRudderEvent(false));
     }
 }

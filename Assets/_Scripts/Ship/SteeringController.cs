@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class SteeringController : MonoBehaviour
 {
@@ -8,16 +9,25 @@ public class SteeringController : MonoBehaviour
     public float rudderChangeSpeed = 60f;  // หมุนเร็วแค่ไหน
     public float returnSpeed = 30f;        // คืนกลางเร็วแค่ไหน
 
+    [Header("Input Action Reference")]
+    public InputActionReference turnLeft;
+    public InputActionReference turnRight;
     private void OnEnable()
     {
+        /*
         EventManager2.OnEnterShipControl += EnterShipControlMode;
         EventManager2.OnExitShipControl += ExitShipControlMode;
+        */
+        EventManager.Subscribe<CharacterControlRudderEvent>(OnCharacterControlRudder);
     }
 
     private void OnDisable()
     {
+        /*
         EventManager2.OnEnterShipControl -= EnterShipControlMode;
-        EventManager2.OnExitShipControl -= ExitShipControlMode;  
+        EventManager2.OnExitShipControl -= ExitShipControlMode;
+        */
+        EventManager.UnSubscribe<CharacterControlRudderEvent>(OnCharacterControlRudder);
     }
 
     void Update()
@@ -26,8 +36,8 @@ public class SteeringController : MonoBehaviour
         {
             float input = 0f;
 
-            if (Input.GetKey(KeyCode.A)) input = -1f;
-            if (Input.GetKey(KeyCode.D)) input = 1f;
+            if (turnLeft.action.IsPressed()) input = -1f;
+            if (turnRight.action.IsPressed()) input = 1f;
 
             if (input != 0)
             {
@@ -58,7 +68,7 @@ public class SteeringController : MonoBehaviour
         }
 
     }
-
+    /*
     void EnterShipControlMode()
     {
         ShipControlMode = true;
@@ -70,4 +80,12 @@ public class SteeringController : MonoBehaviour
         ShipControlMode = false;
         Debug.Log("EXITED SHIP CONTROL MODE");
     }
+    */
+
+    void OnCharacterControlRudder(CharacterControlRudderEvent e)
+    {
+        ShipControlMode = e.value;
+        Debug.Log("ShipControlMode: " + e.value);
+    }
+
 }

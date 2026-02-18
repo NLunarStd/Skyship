@@ -117,6 +117,12 @@ public class PlayerInteract : MonoBehaviour
         {
             carriedObject = closestObject;
 
+            PickableObject pickable = carriedObject.GetComponent<PickableObject>();
+            if (pickable != null)
+            {
+                pickable.RemoveFromFurnace();
+            }
+
             Rigidbody rb = carriedObject.GetComponent<Rigidbody>();
             rb.isKinematic = true;
 
