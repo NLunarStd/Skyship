@@ -133,6 +133,8 @@ public class PlayerInteract : MonoBehaviour
             Collider col = carriedObject.GetComponent<Collider>();
             col.enabled = false;
 
+            SoundManager.instance.PlayPickupSound();
+
         }
     }
 
@@ -147,6 +149,7 @@ public class PlayerInteract : MonoBehaviour
         col.enabled = true;
 
         carriedObject = null;
+        SoundManager.instance.PlayDropSound();
     }
 
     void UpdateHighlight()
@@ -208,6 +211,8 @@ public class PlayerInteract : MonoBehaviour
         rb.AddForce(dir * force, ForceMode.Impulse);
 
         carriedObject = null;
+
+        SoundManager.instance.PlayThrowSound();
 
     }
 
