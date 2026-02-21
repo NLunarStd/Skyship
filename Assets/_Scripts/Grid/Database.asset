@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5ef8905c6b0f84439169f6580155963, type: 3}
+  m_Name: Database
+  m_EditorClassIdentifier: Assembly-CSharp::ObjectsDatabaseSO
+  objectsData:
+  - <Name>k__BackingField: TestTurret_1
+    <ID>k__BackingField: 0
+    <Size>k__BackingField: {x: 1, y: 1}
+    <Prefab>k__BackingField: {fileID: 872230814284340235, guid: cab012775b6faf04fb0a4706aedb5827, type: 3}
+  - <Name>k__BackingField: TestTurret_2
+    <ID>k__BackingField: 1
+    <Size>k__BackingField: {x: 2, y: 2}
+    <Prefab>k__BackingField: {fileID: 5124984742005608040, guid: 8e4b15a079fa3e0418331179ec64651d, type: 3}
