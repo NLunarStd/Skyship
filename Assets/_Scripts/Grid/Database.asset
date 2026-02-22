@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ObjectsDatabaseSO
   objectsData:
   - <Name>k__BackingField: TestTurret_1
-    <ID>k__BackingField: 0
+    <ID>k__BackingField: 1
     <Size>k__BackingField: {x: 1, y: 1}
     <Prefab>k__BackingField: {fileID: 872230814284340235, guid: cab012775b6faf04fb0a4706aedb5827, type: 3}
   - <Name>k__BackingField: TestTurret_2
-    <ID>k__BackingField: 1
+    <ID>k__BackingField: 2
     <Size>k__BackingField: {x: 2, y: 2}
     <Prefab>k__BackingField: {fileID: 5124984742005608040, guid: 8e4b15a079fa3e0418331179ec64651d, type: 3}
