@@ -1635,11 +1635,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlacementSystem
   mouseIndicator: {fileID: 60405186}
-  cellIndicator: {fileID: 1284862827}
   inputManager: {fileID: 16344372}
   grid: {fileID: 1332859381}
   database: {fileID: 11400000, guid: 018b87efaa6929143843e5da2a918c8e, type: 2}
   gridVisualization: {fileID: 1800243450}
+  preview: {fileID: 1914254751}
 --- !u!1001 &1027164902
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2038,6 +2038,14 @@ PrefabInstance:
     - target: {fileID: 3952697397410380797, guid: 1a58cd6aa9af4a348a27868ec16a4596, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4217279997386698761, guid: 1a58cd6aa9af4a348a27868ec16a4596, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4217279997386698761, guid: 1a58cd6aa9af4a348a27868ec16a4596, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 4217279997386698761, guid: 1a58cd6aa9af4a348a27868ec16a4596, type: 3}
       propertyPath: m_LocalPosition.x
@@ -3031,6 +3039,7 @@ Transform:
   - {fileID: 903014114}
   - {fileID: 60405187}
   - {fileID: 1284862826}
+  - {fileID: 1914254750}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1853194282
@@ -3210,6 +3219,53 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 934d4edb8e618b947a09f8f0294b8e97, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::EventManager
+--- !u!1 &1914254749
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1914254750}
+  - component: {fileID: 1914254751}
+  m_Layer: 0
+  m_Name: PreviewSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1914254750
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914254749}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1818810183}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1914254751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1914254749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe60af0b0a9a3f34a83e94706582c150, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PreviewSystem
+  previewYOffset: 0.06
+  cellIndicator: {fileID: 1284862827}
+  previewMaterialPrefab: {fileID: 2100000, guid: fd7cc0a0eae04a743ad284d6581aba0a, type: 2}
 --- !u!1 &2138623058 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8488312993874892780, guid: b2f9bafcd168b68468fe82fefad8a023, type: 3}
