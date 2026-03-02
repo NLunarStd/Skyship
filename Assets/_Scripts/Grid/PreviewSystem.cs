@@ -25,6 +25,10 @@ public class PreviewSystem : MonoBehaviour
 
     public void StartShowingPlacementPreview(GameObject prefab, Vector2Int size)
     {
+        // ลบ preview เก่าก่อน
+        if (previewObject != null)
+            Destroy(previewObject);
+
         previewObject = Instantiate(prefab);
         PreparePreavie(previewObject);
         PrepareCursor(size);
