@@ -1,80 +1,173 @@
+using TMPro;
 using UnityEngine;
+using Unity.Netcode;
+using UnityEngine.UI;
+using System.Collections;
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
-    public Transform playerCharacter;
-    public Camera mainCamera;
+    public static GameManager instance;
 
-    void Start()
+    private void Awake()
     {
-        
-    }
-
-    void Update()
-    {
-        
-    }
-    private void LateUpdate()
-    {
-        getCurrentPlayerPosition();
-    }
-
-    void getCurrentPlayerPosition()
-    {
-        if (playerCharacter == null)
-            return;
-
-        mainCamera = Camera.main;
-
-        Vector3 playerPos = playerCharacter.position;
-
-        Vector3 cameraPos = mainCamera.transform.position;
-
-        Vector3 dir = playerPos - cameraPos;
-
-        RaycastHit hit;
-
-        if (Physics.Raycast(cameraPos, dir, out hit))
+        if (instance == null)
         {
-            //Debug.Log($"Hit object: {hit.collider.gameObject.name}, Layer: {LayerMask.LayerToName(hit.collider.gameObject.layer)}");
-            if (hit.collider.gameObject.layer == LayerMask.NameToLayer("DeckTop"))
-            {
-                EventManager.Publish(new CullTopDeckEvent
-                {
-                    CullTopDeck = true
-                });
-            }
-            else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("DeckUpper"))
-            {
-                EventManager.Publish(new CullUpperDeckEvent
-                {
-                    CullUpperDeck = true
-                });
-            }
-            else if (hit.collider.gameObject.layer == LayerMask.NameToLayer("DeckLower"))
-            {
-                EventManager.Publish(new CullLowerDeckEvent
-                {
-                    CullLowerDeck = true
-                });
-            }
-            else
-            {
-                EventManager.Publish(new CullTopDeckEvent
-                {
-                    CullTopDeck = false
-                });
-                EventManager.Publish(new CullUpperDeckEvent
-                {
-                    CullUpperDeck = false
-                });
-                EventManager.Publish(new CullLowerDeckEvent
-                {
-                    CullLowerDeck = false
-                });
-            }
-
-
+            instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
         }
     }
+    [Header("Timer reference")]
+    public TextMeshProUGUI timer;
+    public float matchTime = 300f; 
+    private bool isGameStarted = false;
+
+    [Header("Countdown Settings")]
+    public TextMeshProUGUI countDownInThree;
+    public float scaleUpMultiplier = 1.5f; 
+    public float animationSpeed = 5f;
+
+    [Header("Player reference")]
+    public PlayerUI[] playerUIs;
+    public NetworkVariable<int> scoreP1 = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> scoreP2 = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> scoreP3 = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public NetworkVariable<int> scoreP4 = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    [System.Serializable]
+    public class PlayerUI
+    {
+        public Transform root;
+        public TextMeshProUGUI nameLabel;
+        public Slider scoreSlider;
+        public TextMeshProUGUI scoreLabel;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        scoreP1.OnValueChanged += (oldVal, newVal) => UpdateUI(0, newVal);
+        scoreP2.OnValueChanged += (oldVal, newVal) => UpdateUI(1, newVal);
+        scoreP3.OnValueChanged += (oldVal, newVal) => UpdateUI(2, newVal);
+        scoreP4.OnValueChanged += (oldVal, newVal) => UpdateUI(3, newVal);
+
+        UpdateUI(0, scoreP1.Value);
+        UpdateUI(1, scoreP2.Value);
+        UpdateUI(2, scoreP3.Value);
+        UpdateUI(3, scoreP4.Value);
+
+        if (IsServer)
+        {
+            StartCountdownClientRpc();
+        }
+    }
+
+    void UpdateUI(int index, int newValue)
+    {
+        if (index < playerUIs.Length)
+        {
+            playerUIs[index].scoreSlider.value = newValue;
+            playerUIs[index].scoreLabel.text = newValue.ToString();
+        }
+    }
+
+    [ClientRpc]
+    private void StartCountdownClientRpc()
+    {
+        StartCoroutine(CountdownRoutine());
+    }
+
+    private IEnumerator CountdownRoutine()
+    {
+        print("Starting Countdown");
+        countDownInThree.gameObject.SetActive(true);
+
+        string[] countdownSteps = { "3", "2", "1", "Start!" };
+
+        foreach (var step in countdownSteps)
+        {
+            countDownInThree.text = step;
+            yield return StartCoroutine(AnimateTextScale(countDownInThree.transform));
+        }
+
+        countDownInThree.gameObject.SetActive(false);
+        isGameStarted = true;
+    }
+
+    private IEnumerator AnimateTextScale(Transform target)
+    {
+        Vector3 originalScale = Vector3.one;
+        Vector3 targetScale = Vector3.one * scaleUpMultiplier;
+
+        float t = 0;
+        while (t < 1)
+        {
+            t += Time.deltaTime * animationSpeed;
+            target.localScale = Vector3.Lerp(originalScale, targetScale, t);
+            yield return null;
+        }
+
+        t = 0;
+        while (t < 1)
+        {
+            t += Time.deltaTime * animationSpeed;
+            target.localScale = Vector3.Lerp(targetScale, originalScale, t);
+            yield return null;
+        }
+
+        yield return new WaitForSeconds(0.2f); 
+    }
+
+    public void Update()
+    {
+        if (isGameStarted)
+        {
+            UpdateTimer();
+        }
+    }
+
+    public void UpdateTimer()
+    {
+        if (!IsServer) return; 
+
+        matchTime -= Time.deltaTime;
+        if (matchTime <= 0)
+        {
+            matchTime = 0;
+            isGameStarted = false;
+            EndMatch();
+        }
+
+        SyncTimerClientRpc(matchTime);
+    }
+
+    [ClientRpc]
+    private void SyncTimerClientRpc(float time)
+    {
+        int minutes = Mathf.FloorToInt(time / 60);
+        int seconds = Mathf.FloorToInt(time % 60);
+        timer.text = $"{minutes:00}:{seconds:00}";
+    }
+
+    
+
+    public void UpdatePlayerScore(int playerIndex, int scoreToAdd)
+    {
+        if (!IsServer) return; 
+
+        switch (playerIndex)
+        {
+            case 0: scoreP1.Value += scoreToAdd; break;
+            case 1: scoreP2.Value += scoreToAdd; break;
+            case 2: scoreP3.Value += scoreToAdd; break;
+            case 3: scoreP4.Value += scoreToAdd; break;
+        }
+    }
+
+    public void EndMatch()
+    {
+        Debug.Log("Match End");
+    }
+
 }

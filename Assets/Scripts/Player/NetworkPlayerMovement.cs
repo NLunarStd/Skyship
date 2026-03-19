@@ -1,51 +1,58 @@
+using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
-public class PhysicsMovementForTesting : MonoBehaviour
+public class NetworkPlayerMovement : NetworkBehaviour 
 {
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
     public float sprintSpeed = 9f;
     public float rotationSpeed = 10f;
-    public float jumpForce = 8f; 
+    public float jumpForce = 8f;
     public float groundDrag = 5f;
+
+    [Header("Jump Settings")]
+    public float jumpCooldown = 1.2f; 
+    private float nextJumpTime;
 
     [Header("State Flags")]
     public bool isUsingMode = false;
-    public bool isGrounded;
-
-    [Header("Detection")]
-    public float playerHeight = 2f;
-    public LayerMask groundLayer;
-
-    private Rigidbody rb;
-    private Vector2 moveInput;
-    private bool sprintPressed;
 
     [Header("Input Action Reference")]
     public InputActionReference moveAction;
     public InputActionReference jumpAction;
     public InputActionReference sprintAction;
 
+    private Rigidbody rb;
+    private Vector2 moveInput;
+    private bool sprintPressed;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true; 
+        rb.freezeRotation = true;
+
+        if (!IsOwner)
+        {
+            rb.isKinematic = true;
+        }
     }
 
     void Update()
     {
-        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, groundLayer);
+        if (!IsOwner) return;
 
         if (!isUsingMode)
         {
             moveInput = moveAction.action.ReadValue<Vector2>();
             sprintPressed = sprintAction.action.IsPressed();
 
-            if (jumpAction.action.triggered && isGrounded)
+            if (jumpAction.action.triggered && Time.time >= nextJumpTime)
             {
                 HandleJump();
+                nextJumpTime = Time.time + jumpCooldown; 
             }
         }
         else
@@ -58,39 +65,37 @@ public class PhysicsMovementForTesting : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isUsingMode)
-        {
-            MovePlayer();
-            RotatePlayer();
-        }
+        if (!IsOwner || isUsingMode) return;
+
+        MovePlayer();
+        RotatePlayer();
     }
 
     private void MovePlayer()
     {
-        bool canSprint = sprintPressed && isGrounded;
-
-        float targetSpeed = canSprint ? sprintSpeed : walkSpeed;
+        float targetSpeed = sprintPressed ? sprintSpeed : walkSpeed;
         Vector3 moveDirection = new Vector3(moveInput.x, 0f, moveInput.y).normalized;
 
-        rb.AddForce(moveDirection * targetSpeed * 10f, ForceMode.Force);
-
-        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        if (flatVel.magnitude > targetSpeed)
+        if (transform.parent != null)
         {
-            Vector3 limitedVel = flatVel.normalized * targetSpeed;
-            rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            moveDirection = transform.parent.TransformDirection(moveDirection);
         }
+        Vector3 targetVelocity = moveDirection * targetSpeed;
+        Vector3 currentVelocity = rb.linearVelocity;
+
+        rb.linearVelocity = new Vector3(targetVelocity.x, currentVelocity.y, targetVelocity.z);
     }
+
     private void RotatePlayer()
     {
         Vector3 direction = new Vector3(moveInput.x, 0f, moveInput.y);
-
         if (direction != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(direction);
             rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
         }
     }
+
     private void HandleJump()
     {
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
@@ -99,10 +104,7 @@ public class PhysicsMovementForTesting : MonoBehaviour
 
     private void ControlDrag()
     {
-        if (isGrounded)
-            rb.linearDamping = groundDrag;
-        else
-            rb.linearDamping = 0; 
+        rb.linearDamping = groundDrag;
     }
 
     public void SetUsingMode(bool value)

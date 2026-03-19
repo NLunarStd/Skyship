@@ -113,6 +113,33 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "ChangeSpectateView",
+                    "type": "Button",
+                    "id": "4bdccec6-6208-460a-9ee0-3aba553b1bc9",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "StartShip",
+                    "type": "Button",
+                    "id": "1dd2ad3b-9363-4562-9fa0-9c95b667008d",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "ShipBrake",
+                    "type": "Button",
+                    "id": "b783c774-e5de-44ca-bd02-0c02dee759b8",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -487,6 +514,39 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "ExitControlRudder",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "53629823-0273-4a9c-80b9-2fef528ae139",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "ChangeSpectateView",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1ee1975b-e0cd-4859-8199-c1b8f903ff63",
+                    "path": "<Keyboard>/g",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "StartShip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "178bc2eb-0eda-4a71-af28-8b62e92a7dbb",
+                    "path": "<Keyboard>/s",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ShipBrake",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

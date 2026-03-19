@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public class PlayerItemHandler : MonoBehaviour
 {
@@ -31,6 +32,10 @@ public class PlayerItemHandler : MonoBehaviour
     [Header("Input References")]
     public InputActionReference pickAction;
 
+
+    [Header("UI")]
+    public Image chargeFill;
+    public GameObject chargeUI;
     private void OnEnable()
     {
         EventManager.Subscribe<CharacterStunnedEvent>(OnPlayerStunned);

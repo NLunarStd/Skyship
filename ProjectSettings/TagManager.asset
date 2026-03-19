@@ -7,20 +7,21 @@ TagManager:
   - Pickup
   - Ship
   - ShipCore
+  - MainVirtualCamera
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Placement
+  - 
   - Water
   - UI
   - Item
-  - DeckTop
-  - DeckUpper
-  - DeckLower
-  - Station
   - Character
   - Ground
+  - HeldItem
+  - Ship
+  - 
+  - 
   - 
   - 
   - 
