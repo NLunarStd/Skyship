@@ -26,7 +26,20 @@ public class ItemPoolManager : NetworkBehaviour
         }
     }
 
-    public override void OnNetworkSpawn()
+    //public override void OnNetworkSpawn()
+    //{
+    //    if (!IsServer) return;
+
+    //    foreach (var pool in pools)
+    //    {
+    //        for (int i = 0; i < pool.initialSize; i++)
+    //        {
+    //            CreateNewObject(pool);
+    //        }
+    //    }
+    //}
+
+    public void InitializePools()
     {
         if (!IsServer) return;
 
@@ -37,6 +50,8 @@ public class ItemPoolManager : NetworkBehaviour
                 CreateNewObject(pool);
             }
         }
+
+        Debug.Log("Item pools initialized");
     }
 
     private NetworkObject CreateNewObject(PoolData pool)

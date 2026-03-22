@@ -29,10 +29,13 @@ public class NetworkShipSteeringControl : NetworkBehaviour
             if (startShipAction.action.WasPressedThisFrame()) ToggleEngineServerRpc();
 
             bool isBrakePressed = brakeAction.action.IsPressed();
+
+            if (!NetworkManager.Singleton.IsListening) return;
             UpdateBrakeServerRpc(isBrakePressed);
         }
         else
         {
+            if (!NetworkManager.Singleton.IsListening) return;
             UpdateBrakeServerRpc(false);
         }
 

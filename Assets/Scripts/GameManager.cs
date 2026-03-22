@@ -3,22 +3,29 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.UI;
 using System.Collections;
+using System;
+using Unity.Netcode.Components;
 
 public class GameManager : NetworkBehaviour
 {
     public static GameManager instance;
+
+    private bool isInLobby = true;
 
     private void Awake()
     {
         if (instance == null)
         {
             instance = this;
+            DontDestroyOnLoad(gameObject); // กันโดนสร้างซ้ำ
         }
         else
         {
             Destroy(gameObject);
         }
     }
+
+    
     [Header("Timer reference")]
     public TextMeshProUGUI timer;
     public float matchTime = 300f; 
@@ -35,6 +42,23 @@ public class GameManager : NetworkBehaviour
     public NetworkVariable<int> scoreP2 = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkVariable<int> scoreP3 = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public NetworkVariable<int> scoreP4 = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
+    [Header("CANVAS")]
+    public GameObject MenuCanvas;
+    public GameObject LobbyCanvas;
+    public GameObject GamePlayCanvas;
+
+    [Header("CAMERA")]
+    public Camera mainCam;
+    public Camera lobbyCam;
+
+    public void EnterLobby()
+    {
+        MenuCanvas.SetActive(false);
+        LobbyCanvas.SetActive(true);
+        GamePlayCanvas.SetActive(false);
+    }
+
 
     [System.Serializable]
     public class PlayerUI
@@ -57,10 +81,6 @@ public class GameManager : NetworkBehaviour
         UpdateUI(2, scoreP3.Value);
         UpdateUI(3, scoreP4.Value);
 
-        if (IsServer)
-        {
-            StartCountdownClientRpc();
-        }
     }
 
     void UpdateUI(int index, int newValue)
@@ -170,4 +190,84 @@ public class GameManager : NetworkBehaviour
         Debug.Log("Match End");
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void StartGameServerRpc()
+    {
+        Debug.Log("SERVER RPC CALLED");
+        StartGame();
+
+    }
+
+    private void StartGame()
+    {
+        if (!IsServer) return;
+
+        isInLobby = false;
+
+        ItemPoolManager.Instance.InitializePools();
+
+
+        foreach (var spawner in FindObjectsOfType<ItemSpawner>())
+        {
+            spawner.StartSpawning();
+        }
+
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            Debug.Log($"Client {client.ClientId}");
+
+            var player = client.PlayerObject;
+
+            if (player == null)
+            {
+                Debug.LogError("PlayerObject is NULL!");
+                continue;
+            }
+
+            int slot = ConnectionManager.Instance.GetPlayerSlot(client.ClientId);
+            Debug.Log($"Slot = {slot}");
+
+            Vector3 pos = GetGameSpawnPosition(slot);
+
+            var netTransform = player.GetComponent<NetworkTransform>();
+
+            if (netTransform != null)
+            {
+                netTransform.Teleport(pos, Quaternion.identity, player.transform.localScale);
+            }
+            else
+            {
+                player.transform.position = pos;
+            }
+        }
+
+        SwitchToGameplayUIClientRpc();
+        StartCountdownClientRpc();
+    }
+
+    [ClientRpc]
+    private void SwitchToGameplayUIClientRpc()
+    {
+        mainCam.gameObject.SetActive(true);
+        lobbyCam.gameObject.SetActive(false);
+
+        LobbyCanvas.SetActive(false);
+        GamePlayCanvas.SetActive(true);
+    }
+
+    [SerializeField] private Transform[] gameSpawnPoints;
+
+    private Vector3 GetGameSpawnPosition(int slot)
+    {
+        if (slot >= 0 && slot < gameSpawnPoints.Length)
+        {
+            return gameSpawnPoints[slot].position;
+        }
+        return Vector3.zero;
+    }
+
+    public bool IsInLobby()
+    {
+        return isInLobby;
+    }
 }

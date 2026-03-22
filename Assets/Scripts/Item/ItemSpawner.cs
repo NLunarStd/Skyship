@@ -13,14 +13,18 @@ public class ItemSpawner : NetworkBehaviour
 
     private int currentActiveItems = 0;
 
-    public override void OnNetworkSpawn()
-    {
-        if (!IsServer) return;
-        StartCoroutine(InitialSpawnRoutine());
-    }
+    //public override void OnNetworkSpawn()
+    //{
+    //    if (!IsServer) return;
+
+
+    //    StartCoroutine(InitialSpawnRoutine());
+    //}
 
     private IEnumerator InitialSpawnRoutine()
     {
+        if (!NetworkManager.Singleton.IsListening) yield break;
+
         for (int i = 0; i < totalItems; i++)
         {
             SpawnOneItem();
@@ -59,5 +63,12 @@ public class ItemSpawner : NetworkBehaviour
     {
         yield return new WaitForSeconds(spawnInterval);
         SpawnOneItem();
+    }
+
+    public void StartSpawning()
+    {
+        if (!IsServer) return;
+
+        StartCoroutine(InitialSpawnRoutine());
     }
 }

@@ -29,6 +29,11 @@ public class NetworkPlayerMovement : NetworkBehaviour
     private Vector2 moveInput;
     private bool sprintPressed;
 
+    
+
+    
+    
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -111,4 +116,5 @@ public class NetworkPlayerMovement : NetworkBehaviour
     {
         isUsingMode = value;
     }
+
 }

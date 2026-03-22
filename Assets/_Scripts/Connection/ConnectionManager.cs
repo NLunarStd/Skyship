@@ -97,6 +97,7 @@ public class ConnectionManager : MonoBehaviour
             response.Approved = false;
             response.Reason = "Invalid payload";
             response.Pending = false;
+            Debug.Log("INVALID PAYLOAD");
             return;
         }
 
@@ -105,6 +106,7 @@ public class ConnectionManager : MonoBehaviour
             response.Approved = false;
             response.Reason = "Name already in use";
             response.Pending = false;
+            Debug.Log("NAME ALREADY IN USE");
             return;
         }
 
@@ -114,8 +116,11 @@ public class ConnectionManager : MonoBehaviour
             response.Approved = false;
             response.Reason = "Room is full";
             response.Pending = false;
+            Debug.Log("ROOM IS FULL");
             return;
         }
+
+        Debug.Log("APPROVAL OK!");
 
         ulong clientId = request.ClientNetworkId;
 
@@ -125,12 +130,13 @@ public class ConnectionManager : MonoBehaviour
 
         response.Approved = true;
         response.CreatePlayerObject = true;
-        response.PlayerPrefabHash = null; // ใช้ default prefab
+        //response.PlayerPrefabHash = null; // ใช้ default prefab
         response.Position = spawnPoints[slot].position;
         response.Rotation = Quaternion.Euler(0, 180, 0);
         response.Pending = false;
 
         Debug.Log($"Client {username} joined slot {slot}");
+ 
     }
 
     // -------------------------
@@ -149,6 +155,8 @@ public class ConnectionManager : MonoBehaviour
         if (clientId == NetworkManager.Singleton.LocalClientId)
         {
             SetUIConnected(true);
+
+            GameManager.instance.EnterLobby();
         }
     }
 
@@ -178,7 +186,9 @@ public class ConnectionManager : MonoBehaviour
     private void SetUIConnected(bool connected)
     {
         loginPanel.SetActive(!connected);
-        leaveButton.SetActive(connected);
+
+        if (leaveButton != null)
+            leaveButton.SetActive(connected);
 
         if (connected)
             ClearError();
@@ -243,6 +253,8 @@ public class ConnectionManager : MonoBehaviour
         {
             SetError("Join failed");
         }
+
+        GameManager.instance.EnterLobby();
     }
 
     // -------------------------
@@ -251,16 +263,33 @@ public class ConnectionManager : MonoBehaviour
     private bool TryParseConnectionPayload(ArraySegment<byte> payload, out string username)
     {
         username = "";
-
-        if (payload.Array == null || payload.Count == 0)
-            return false;
+        if (payload.Array == null || payload.Count == 0) return false;
 
         string decoded = Encoding.UTF8.GetString(payload.Array, payload.Offset, payload.Count);
+        if (string.IsNullOrWhiteSpace(decoded)) return false;
 
-        if (string.IsNullOrWhiteSpace(decoded))
-            return false;
-
-        username = decoded.Trim();
+        // แยก username ออกจาก characterId
+        string[] parts = decoded.Split('|');
+        username = parts[0].Trim();
         return true;
+    }
+
+    public Vector3 GetSpawnPosition(ulong clientId)
+    {
+        if (_clientSlots.TryGetValue(clientId, out int slot))
+        {
+            return spawnPoints[slot].position;
+        }
+        return Vector3.zero; // หรือจุดเกิดสำรอง
+    }
+
+    public int GetPlayerSlot(ulong clientId)
+    {
+        if (_clientSlots.TryGetValue(clientId, out int slot))
+        {
+            return slot;
+        }
+
+        return -1; // กันพลาด
     }
 }
