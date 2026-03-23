@@ -5,8 +5,10 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Collections;
+using System.Collections;
 
-public class ConnectionManager : MonoBehaviour
+public class ConnectionManager : NetworkBehaviour
 {
     public static ConnectionManager Instance { get; private set; }
     public string LocalUsername { get; private set; } = "";
@@ -36,10 +38,27 @@ public class ConnectionManager : MonoBehaviour
 
     private bool[] _slotUsed;
 
+    public NetworkVariable<FixedString32Bytes> roomCodeNet =
+    new NetworkVariable<FixedString32Bytes>(
+        "",
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Server
+    );
+
     private void Start()
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
         _slotUsed = new bool[spawnPoints.Length];
+
+        roomCodeNet.OnValueChanged += OnRoomCodeChanged;
+    }
+
+    private void OnRoomCodeChanged(FixedString32Bytes previousValue, FixedString32Bytes newValue)
+    {
+        if (roomCodeDisplay != null)
+        {
+            roomCodeDisplay.text = "Room Code: " + newValue.ToString();
+        }
     }
 
     private void OnEnable()
@@ -49,6 +68,11 @@ public class ConnectionManager : MonoBehaviour
         NetworkManager.Singleton.OnServerStarted += HandleServerStarted;
         NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
         NetworkManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
+
+        if (roomCodeDisplay != null)
+        {
+            roomCodeDisplay.text = "Room Code: " + roomCodeNet.Value;
+        }
     }
 
     private void OnDisable()
@@ -126,6 +150,7 @@ public class ConnectionManager : MonoBehaviour
 
         _clientSlots[clientId] = slot;
         _clientIdToName[clientId] = username;
+        StartCoroutine(SetNameNextFrame(clientId, username));
         _connectedNames.Add(username);
 
         response.Approved = true;
@@ -158,7 +183,13 @@ public class ConnectionManager : MonoBehaviour
 
             GameManager.instance.EnterLobby();
         }
+
+        if (roomCodeDisplay != null)
+        {
+            roomCodeDisplay.text = "Room Code: " + roomCodeNet.Value.ToString();
+        }
     }
+
 
     private void HandleClientDisconnected(ulong clientId)
     {
@@ -231,7 +262,12 @@ public class ConnectionManager : MonoBehaviour
         LocalUsername = username;
 
         string joinCode = await relayManager.StartHostWithRelay(username, 0);
-        roomCodeDisplay.text = "Room Code: " + joinCode;
+
+        roomCodeNet.Value = joinCode.ToString();
+
+        //roomCodeDisplay.text = "Room Code: " + joinCode;
+
+
     }
 
     public async void StartClientWithRoom()
@@ -255,6 +291,7 @@ public class ConnectionManager : MonoBehaviour
         }
 
         GameManager.instance.EnterLobby();
+
     }
 
     // -------------------------
@@ -291,5 +328,47 @@ public class ConnectionManager : MonoBehaviour
         }
 
         return -1; // กันพลาด
+    }
+
+    public void CopyJoinCode()
+    {
+        if (roomCodeDisplay == null) return;
+
+        string text = roomCodeDisplay.text;
+
+        if (string.IsNullOrEmpty(text))
+        {
+            SetError("No room code to copy");
+            return;
+        }
+
+        // ถ้า text เป็น "Room Code: ABC123" ? ตัดเอาแค่โค้ด
+        string code = text.Replace("Room Code: ", "").Trim();
+
+        GUIUtility.systemCopyBuffer = code;
+
+        Debug.Log("Copied join code: " + code);
+
+    }
+
+    public string GetPlayerName(ulong clientId)
+    {
+        if (_clientIdToName.TryGetValue(clientId, out string name))
+        {
+            return name;
+        }
+        return "None";
+    }
+
+    private IEnumerator SetNameNextFrame(ulong clientId, string username)
+    {
+        yield return null;
+
+        int slot = GetPlayerSlot(clientId);
+
+        if (slot >= 0)
+        {
+            GameManager.instance.SetPlayerName(slot, username);
+        }
     }
 }

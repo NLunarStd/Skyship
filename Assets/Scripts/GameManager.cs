@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System;
 using Unity.Netcode.Components;
+using Unity.Collections;
 
 public class GameManager : NetworkBehaviour
 {
@@ -25,15 +26,15 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    
+
     [Header("Timer reference")]
     public TextMeshProUGUI timer;
-    public float matchTime = 300f; 
+    public float matchTime = 300f;
     private bool isGameStarted = false;
 
     [Header("Countdown Settings")]
     public TextMeshProUGUI countDownInThree;
-    public float scaleUpMultiplier = 1.5f; 
+    public float scaleUpMultiplier = 1.5f;
     public float animationSpeed = 5f;
 
     [Header("Player reference")]
@@ -52,11 +53,26 @@ public class GameManager : NetworkBehaviour
     public Camera mainCam;
     public Camera lobbyCam;
 
+    [Header("Lobby Canvas")]
+    public TMP_Text copyCodeText;
+    [SerializeField] private GameObject startGameButton;
+    [SerializeField] private TMP_Text waitForHostText;
+
+    public NetworkVariable<FixedString32Bytes>[] playerNames =
+{
+    new NetworkVariable<FixedString32Bytes>("None"),
+    new NetworkVariable<FixedString32Bytes>("None"),
+    new NetworkVariable<FixedString32Bytes>("None"),
+    new NetworkVariable<FixedString32Bytes>("None")
+};
+
     public void EnterLobby()
     {
         MenuCanvas.SetActive(false);
         LobbyCanvas.SetActive(true);
         GamePlayCanvas.SetActive(false);
+
+        SetupLobbyUI();
     }
 
 
@@ -80,6 +96,23 @@ public class GameManager : NetworkBehaviour
         UpdateUI(1, scoreP2.Value);
         UpdateUI(2, scoreP3.Value);
         UpdateUI(3, scoreP4.Value);
+
+        for (int i = 0; i < playerNames.Length; i++)
+        {
+            int index = i;
+            playerNames[i].OnValueChanged += (oldVal, newVal) =>
+            {
+                playerUIs[index].nameLabel.text = newVal.ToString();
+            };
+
+            // initial
+            playerUIs[i].nameLabel.text = playerNames[i].Value.ToString();
+        }
+
+        if (IsClient)
+        {
+            EnterLobby();
+        }
 
     }
 
@@ -136,7 +169,7 @@ public class GameManager : NetworkBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(0.2f); 
+        yield return new WaitForSeconds(0.2f);
     }
 
     public void Update()
@@ -149,7 +182,7 @@ public class GameManager : NetworkBehaviour
 
     public void UpdateTimer()
     {
-        if (!IsServer) return; 
+        if (!IsServer) return;
 
         matchTime -= Time.deltaTime;
         if (matchTime <= 0)
@@ -170,11 +203,11 @@ public class GameManager : NetworkBehaviour
         timer.text = $"{minutes:00}:{seconds:00}";
     }
 
-    
+
 
     public void UpdatePlayerScore(int playerIndex, int scoreToAdd)
     {
-        if (!IsServer) return; 
+        if (!IsServer) return;
 
         switch (playerIndex)
         {
@@ -312,4 +345,33 @@ public class GameManager : NetworkBehaviour
     {
         return isInLobby;
     }
+
+    public void ShowCopyCodeNoti()
+    {
+        StartCoroutine(CopyCodeNoti());
+    }
+    private IEnumerator CopyCodeNoti()
+    {
+        copyCodeText.text = "COPIED!";
+
+        yield return new WaitForSeconds(1f);
+
+        copyCodeText.text = "COPY";
+    }
+
+    public void SetupLobbyUI()
+    {
+        bool isHost = NetworkManager.Singleton.IsHost;
+
+        startGameButton.SetActive(isHost);
+        waitForHostText.gameObject.SetActive(!isHost);
+    }
+
+    public void SetPlayerName(int slot, string name)
+    {
+        if (!IsServer) return;
+
+        playerNames[slot].Value = name;
+    }
+
 }
