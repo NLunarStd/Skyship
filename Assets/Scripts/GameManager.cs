@@ -197,53 +197,95 @@ public class GameManager : NetworkBehaviour
         StartGame();
 
     }
-
     private void StartGame()
     {
         if (!IsServer) return;
 
         isInLobby = false;
-
         ItemPoolManager.Instance.InitializePools();
-
 
         foreach (var spawner in FindObjectsOfType<ItemSpawner>())
         {
             spawner.StartSpawning();
         }
 
-        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            Debug.Log($"Client {client.ClientId}");
-
-            var player = client.PlayerObject;
-
-            if (player == null)
-            {
-                Debug.LogError("PlayerObject is NULL!");
-                continue;
-            }
-
-            int slot = ConnectionManager.Instance.GetPlayerSlot(client.ClientId);
-            Debug.Log($"Slot = {slot}");
-
-            Vector3 pos = GetGameSpawnPosition(slot);
-
-            var netTransform = player.GetComponent<NetworkTransform>();
-
-            if (netTransform != null)
-            {
-                netTransform.Teleport(pos, Quaternion.identity, player.transform.localScale);
-            }
-            else
-            {
-                player.transform.position = pos;
-            }
-        }
+        StartCoroutine(TeleportAllPlayers());
 
         SwitchToGameplayUIClientRpc();
         StartCountdownClientRpc();
     }
+
+    private IEnumerator TeleportAllPlayers()
+    {
+
+        yield return null;
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            var player = client.PlayerObject;
+            if (player == null) continue;
+
+            int slot = ConnectionManager.Instance.GetPlayerSlot(client.ClientId);
+            Vector3 targetPos = GetGameSpawnPosition(slot);
+
+            if (player.TryGetComponent<NetworkTransform>(out var netTransform))
+            {
+                netTransform.Teleport(targetPos, Quaternion.identity, player.transform.localScale);
+            }
+            else
+            {
+                player.transform.position = targetPos;
+            }
+
+            Debug.Log($"Teleported Client {client.ClientId} to Slot {slot}");
+        }
+        yield return null;
+    }
+    //private void StartGame()
+    //{
+    //    if (!IsServer) return;
+
+    //    isInLobby = false;
+
+    //    ItemPoolManager.Instance.InitializePools();
+
+
+    //    foreach (var spawner in FindObjectsOfType<ItemSpawner>())
+    //    {
+    //        spawner.StartSpawning();
+    //    }
+
+    //    foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+    //    {
+    //        Debug.Log($"Client {client.ClientId}");
+
+    //        var player = client.PlayerObject;
+
+    //        if (player == null)
+    //        {
+    //            Debug.LogError("PlayerObject is NULL!");
+    //            continue;
+    //        }
+
+    //        int slot = ConnectionManager.Instance.GetPlayerSlot(client.ClientId);
+    //        Debug.Log($"Slot = {slot}");
+
+    //        Vector3 pos = GetGameSpawnPosition(slot);
+
+    //        var netTransform = player.GetComponent<NetworkTransform>();
+
+    //        if (netTransform != null)
+    //        {
+    //            netTransform.Teleport(pos, Quaternion.identity, player.transform.localScale);
+    //        }
+    //        else
+    //        {
+    //            player.transform.position = pos;
+    //        }
+    //    }
+
+    //    SwitchToGameplayUIClientRpc();
+    //    StartCountdownClientRpc();
+    //}
 
     [ClientRpc]
     private void SwitchToGameplayUIClientRpc()

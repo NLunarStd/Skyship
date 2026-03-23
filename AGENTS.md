@@ -1,8 +1,8 @@
 <!-- UNITY CODE ASSIST INSTRUCTIONS START -->
-- Project name: SkyShip
-- Unity version: Unity 6000.3.7f1
+- Project name: Skyship
+- Unity version: Unity 6000.0.67f1
 - Active game object:
-  - Name: NetworkManager
+  - Name: GameManager
   - Tag: Untagged
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
