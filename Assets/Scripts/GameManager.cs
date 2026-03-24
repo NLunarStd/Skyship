@@ -58,13 +58,10 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private GameObject startGameButton;
     [SerializeField] private TMP_Text waitForHostText;
 
-    public NetworkVariable<FixedString32Bytes>[] playerNames =
-{
-    new NetworkVariable<FixedString32Bytes>("None"),
-    new NetworkVariable<FixedString32Bytes>("None"),
-    new NetworkVariable<FixedString32Bytes>("None"),
-    new NetworkVariable<FixedString32Bytes>("None")
-};
+    public NetworkVariable<FixedString32Bytes> playerName1 = new("None");
+    public NetworkVariable<FixedString32Bytes> playerName2 = new("None");
+    public NetworkVariable<FixedString32Bytes> playerName3 = new("None");
+    public NetworkVariable<FixedString32Bytes> playerName4 = new("None");
 
     public void EnterLobby()
     {
@@ -97,17 +94,16 @@ public class GameManager : NetworkBehaviour
         UpdateUI(2, scoreP3.Value);
         UpdateUI(3, scoreP4.Value);
 
-        for (int i = 0; i < playerNames.Length; i++)
-        {
-            int index = i;
-            playerNames[i].OnValueChanged += (oldVal, newVal) =>
-            {
-                playerUIs[index].nameLabel.text = newVal.ToString();
-            };
+        playerName1.OnValueChanged += (o, n) => playerUIs[0].nameLabel.text = n.ToString();
+        playerName2.OnValueChanged += (o, n) => playerUIs[1].nameLabel.text = n.ToString();
+        playerName3.OnValueChanged += (o, n) => playerUIs[2].nameLabel.text = n.ToString();
+        playerName4.OnValueChanged += (o, n) => playerUIs[3].nameLabel.text = n.ToString();
 
-            // initial
-            playerUIs[i].nameLabel.text = playerNames[i].Value.ToString();
-        }
+        // initial
+        playerUIs[0].nameLabel.text = playerName1.Value.ToString();
+        playerUIs[1].nameLabel.text = playerName2.Value.ToString();
+        playerUIs[2].nameLabel.text = playerName3.Value.ToString();
+        playerUIs[3].nameLabel.text = playerName4.Value.ToString();
 
         if (IsClient)
         {
@@ -371,7 +367,13 @@ public class GameManager : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        playerNames[slot].Value = name;
+        switch (slot)
+        {
+            case 0: playerName1.Value = name; break;
+            case 1: playerName2.Value = name; break;
+            case 2: playerName3.Value = name; break;
+            case 3: playerName4.Value = name; break;
+        }
     }
 
 }

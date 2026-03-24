@@ -362,7 +362,7 @@ public class ConnectionManager : NetworkBehaviour
 
     private IEnumerator SetNameNextFrame(ulong clientId, string username)
     {
-        yield return null;
+        yield return new WaitUntil(() => GameManager.instance != null && GameManager.instance.IsSpawned);
 
         int slot = GetPlayerSlot(clientId);
 
