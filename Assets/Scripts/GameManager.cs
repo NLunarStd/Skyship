@@ -72,6 +72,13 @@ public class GameManager : NetworkBehaviour
         SetupLobbyUI();
     }
 
+    public void ExitLobby()
+    {
+        MenuCanvas.SetActive(true);
+        LobbyCanvas.SetActive(false);
+        GamePlayCanvas.SetActive(false);
+    }
+
 
     [System.Serializable]
     public class PlayerUI
@@ -242,33 +249,48 @@ public class GameManager : NetworkBehaviour
 
         SwitchToGameplayUIClientRpc();
         StartCountdownClientRpc();
+
+
     }
 
     private IEnumerator TeleportAllPlayers()
     {
+        // รอให้ทุก player spawn
+        yield return new WaitUntil(() =>
+        {
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+            {
+                if (client.PlayerObject == null) return false;
+            }
+            return true;
+        });
 
-        yield return null;
+        yield return new WaitForSeconds(0.1f); // ป้องกัน desync
+
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
-            var player = client.PlayerObject;
-            if (player == null) continue;
-
             int slot = ConnectionManager.Instance.GetPlayerSlot(client.ClientId);
             Vector3 targetPos = GetGameSpawnPosition(slot);
 
-            if (player.TryGetComponent<NetworkTransform>(out var netTransform))
-            {
-                netTransform.Teleport(targetPos, Quaternion.identity, player.transform.localScale);
-            }
-            else
-            {
-                player.transform.position = targetPos;
-            }
-
-            Debug.Log($"Teleported Client {client.ClientId} to Slot {slot}");
+            TeleportClientRpc(targetPos, client.ClientId);
         }
-        yield return null;
     }
+
+    [ClientRpc]
+    private void TeleportClientRpc(Vector3 targetPos, ulong clientId)
+    {
+        if (NetworkManager.Singleton.LocalClientId != clientId) return;
+
+        var player = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
+
+        var movement = player.GetComponent<NetworkPlayerMovement>();
+        if (movement != null)
+        {
+            movement.StartCoroutine(movement.TeleportRoutine(targetPos));
+        }
+    }
+
+    
     //private void StartGame()
     //{
     //    if (!IsServer) return;

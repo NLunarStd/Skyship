@@ -1,10 +1,11 @@
+using System.Collections;
 using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(Rigidbody))]
-public class NetworkPlayerMovement : NetworkBehaviour 
+public class NetworkPlayerMovement : NetworkBehaviour
 {
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
@@ -14,7 +15,7 @@ public class NetworkPlayerMovement : NetworkBehaviour
     public float groundDrag = 5f;
 
     [Header("Jump Settings")]
-    public float jumpCooldown = 1.2f; 
+    public float jumpCooldown = 1.2f;
     private float nextJumpTime;
 
     [Header("State Flags")]
@@ -29,10 +30,10 @@ public class NetworkPlayerMovement : NetworkBehaviour
     private Vector2 moveInput;
     private bool sprintPressed;
 
-    
+    private bool isTeleporting = false;
 
-    
-    
+
+
 
     void Start()
     {
@@ -57,7 +58,7 @@ public class NetworkPlayerMovement : NetworkBehaviour
             if (jumpAction.action.triggered && Time.time >= nextJumpTime)
             {
                 HandleJump();
-                nextJumpTime = Time.time + jumpCooldown; 
+                nextJumpTime = Time.time + jumpCooldown;
             }
         }
         else
@@ -70,7 +71,7 @@ public class NetworkPlayerMovement : NetworkBehaviour
 
     void FixedUpdate()
     {
-        if (!IsOwner || isUsingMode) return;
+        if (!IsOwner || isUsingMode || isTeleporting) return;
 
         MovePlayer();
         RotatePlayer();
@@ -117,4 +118,32 @@ public class NetworkPlayerMovement : NetworkBehaviour
         isUsingMode = value;
     }
 
+    public IEnumerator TeleportRoutine(Vector3 targetPos)
+    {
+        isTeleporting = true;
+
+        var netTransform = GetComponent<NetworkTransform>();
+
+        // ?? ปิด interpolation
+        netTransform.Interpolate = false;
+
+        // ?? หยุดแรงทั้งหมด
+        rb.linearVelocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+
+        // ?? วาร์ป (ใช้ rb ไม่ใช่ transform)
+        rb.position = targetPos;
+
+        // กัน physics เด้ง
+        rb.Sleep();
+
+        yield return new WaitForSeconds(0.15f);
+
+        rb.WakeUp();
+
+        // ? เปิด interpolation กลับ
+        netTransform.Interpolate = true;
+
+        isTeleporting = false;
+    }
 }

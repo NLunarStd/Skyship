@@ -201,13 +201,35 @@ public class ConnectionManager : NetworkBehaviour
                 _clientIdToName.Remove(clientId);
             }
 
+            if (_clientSlots.TryGetValue(clientId, out int slot))
+            {
+                GameManager.instance.SetPlayerName(slot, "None");
+            }
+
             FreeSlot(clientId);
         }
 
         if (clientId == NetworkManager.Singleton.LocalClientId)
         {
+            bool wasHost = NetworkManager.Singleton.IsHost;
+
             SetUIConnected(false);
-            SetError("Disconnected");
+
+            if (!wasHost)
+            {
+                // ? แปลว่าเราเป็น client ? host หาย
+                SetError("Disconnected");
+            }
+            else
+            {
+                // host ออกเอง
+                SetError("You left the game");
+            }
+
+            if (GameManager.instance != null)
+            {
+                GameManager.instance.ExitLobby();
+            }
         }
     }
 
