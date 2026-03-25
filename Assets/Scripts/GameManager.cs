@@ -252,12 +252,13 @@ public class GameManager : NetworkBehaviour
     {
         endGamePanel.SetActive(true);
 
-        // ?? หา winner
+        // winner
         int[] scores = { s1, s2, s3, s4 };
         string[] names = { n1, n2, n3, n4 };
 
         int maxScore = scores[0];
         int winnerIndex = 0;
+        int countMax = 1; // นับว่ามีกี่คนที่ได้ max
 
         for (int i = 1; i < scores.Length; i++)
         {
@@ -265,19 +266,32 @@ public class GameManager : NetworkBehaviour
             {
                 maxScore = scores[i];
                 winnerIndex = i;
+                countMax = 1;
+            }
+            else if (scores[i] == maxScore)
+            {
+                countMax++;
             }
         }
 
-        winnerText.text = $"Winner: {names[winnerIndex]}";
+        // ?? ตัดสินผล
+        if (countMax > 1)
+        {
+            winnerText.text = "No Winner";
+        }
+        else
+        {
+            winnerText.text = $"Winner: {names[winnerIndex]}";
+        }
 
-        // ?? leaderboard
+        // leaderboard
         leaderboardText.text =
             $"{names[0]} : {s1}\n" +
             $"{names[1]} : {s2}\n" +
             $"{names[2]} : {s3}\n" +
             $"{names[3]} : {s4}";
 
-        // ?? ปุ่ม host เท่านั้น
+        // ปุ่ม host เท่านั้น
         bool isHost = NetworkManager.Singleton.IsHost;
         returnLobbyButton.gameObject.SetActive(isHost);
     }
@@ -388,9 +402,10 @@ public class GameManager : NetworkBehaviour
             TeleportClientRpc(targetPos, client.ClientId);
         }
     }
+   
 
     [ClientRpc]
-    private void TeleportClientRpc(Vector3 targetPos, ulong clientId)
+    public void TeleportClientRpc(Vector3 targetPos, ulong clientId)
     {
         if (NetworkManager.Singleton.LocalClientId != clientId) return;
 

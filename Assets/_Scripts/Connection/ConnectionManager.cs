@@ -188,6 +188,28 @@ public class ConnectionManager : NetworkBehaviour
         {
             roomCodeDisplay.text = "Room Code: " + roomCodeNet.Value.ToString();
         }
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            StartCoroutine(TeleportPlayerToLobby(clientId));
+        }
+    }
+
+    private IEnumerator TeleportPlayerToLobby(ulong clientId)
+    {
+        // ? รอให้ player spawn ก่อน
+        yield return new WaitUntil(() =>
+        {
+            var client = NetworkManager.Singleton.ConnectedClients[clientId];
+            return client.PlayerObject != null;
+        });
+
+        yield return new WaitForSeconds(0.2f); // กัน desync
+
+        int slot = GetPlayerSlot(clientId);
+        Vector3 targetPos = spawnPoints[slot].position;
+
+        GameManager.instance.TeleportClientRpc(targetPos, clientId);
     }
 
 
