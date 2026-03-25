@@ -58,6 +58,12 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private GameObject startGameButton;
     [SerializeField] private TMP_Text waitForHostText;
 
+    [Header("End Game UI")]
+    public GameObject endGamePanel;
+    public TMP_Text winnerText;
+    public TMP_Text leaderboardText;
+    public Button returnLobbyButton;
+
     public NetworkVariable<FixedString32Bytes> playerName1 = new("None");
     public NetworkVariable<FixedString32Bytes> playerName2 = new("None");
     public NetworkVariable<FixedString32Bytes> playerName3 = new("None");
@@ -223,7 +229,114 @@ public class GameManager : NetworkBehaviour
 
     public void EndMatch()
     {
+        if (!IsServer) return;
+
         Debug.Log("Match End");
+
+        ShowEndGameClientRpc(
+            scoreP1.Value,
+            scoreP2.Value,
+            scoreP3.Value,
+            scoreP4.Value,
+            playerName1.Value.ToString(),
+            playerName2.Value.ToString(),
+            playerName3.Value.ToString(),
+            playerName4.Value.ToString()
+        );
+    }
+
+    [ClientRpc]
+    private void ShowEndGameClientRpc(
+    int s1, int s2, int s3, int s4,
+    string n1, string n2, string n3, string n4)
+    {
+        endGamePanel.SetActive(true);
+
+        // ?? หา winner
+        int[] scores = { s1, s2, s3, s4 };
+        string[] names = { n1, n2, n3, n4 };
+
+        int maxScore = scores[0];
+        int winnerIndex = 0;
+
+        for (int i = 1; i < scores.Length; i++)
+        {
+            if (scores[i] > maxScore)
+            {
+                maxScore = scores[i];
+                winnerIndex = i;
+            }
+        }
+
+        winnerText.text = $"Winner: {names[winnerIndex]}";
+
+        // ?? leaderboard
+        leaderboardText.text =
+            $"{names[0]} : {s1}\n" +
+            $"{names[1]} : {s2}\n" +
+            $"{names[2]} : {s3}\n" +
+            $"{names[3]} : {s4}";
+
+        // ?? ปุ่ม host เท่านั้น
+        bool isHost = NetworkManager.Singleton.IsHost;
+        returnLobbyButton.gameObject.SetActive(isHost);
+    }
+
+    public void OnClickReturnToLobby()
+    {
+        if (!NetworkManager.Singleton.IsHost) return;
+
+        ReturnToLobbyServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ReturnToLobbyServerRpc()
+    {
+        ResetGame();
+        ReturnToLobbyClientRpc();
+    }
+
+    private void ResetGame()
+    {
+        matchTime = 300f;
+        isGameStarted = false;
+
+        scoreP1.Value = 0;
+        scoreP2.Value = 0;
+        scoreP3.Value = 0;
+        scoreP4.Value = 0;
+    }
+
+    [ClientRpc]
+    private void ReturnToLobbyClientRpc()
+    {
+        endGamePanel.SetActive(false);
+
+        mainCam.gameObject.SetActive(false);
+        lobbyCam.gameObject.SetActive(true);
+
+        LobbyCanvas.SetActive(true);
+        GamePlayCanvas.SetActive(false);
+
+        isInLobby = true;
+
+        StartCoroutine(TeleportAllPlayersToLobby());
+    }
+
+    [SerializeField] private Transform[] lobbySpawnPoints;
+
+    private IEnumerator TeleportAllPlayersToLobby()
+    {
+        yield return new WaitForSeconds(0.2f);
+
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
+        {
+            int slot = ConnectionManager.Instance.GetPlayerSlot(client.ClientId);
+            Vector3 pos = lobbySpawnPoints[slot].position;
+            pos.y += 2f;
+
+            TeleportClientRpc(pos, client.ClientId);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]

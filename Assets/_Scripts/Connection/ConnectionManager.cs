@@ -31,6 +31,8 @@ public class ConnectionManager : NetworkBehaviour
     [Header("LOBBY SPAWN (4 slots)")]
     [SerializeField] private Transform[] spawnPoints;
 
+    private bool isLeavingManually = false;
+
     // -------- SERVER DATA --------
     private readonly HashSet<string> _connectedNames = new(StringComparer.OrdinalIgnoreCase);
     private readonly Dictionary<ulong, string> _clientIdToName = new();
@@ -130,7 +132,6 @@ public class ConnectionManager : NetworkBehaviour
             response.Approved = false;
             response.Reason = "Name already in use";
             response.Pending = false;
-            Debug.Log("NAME ALREADY IN USE");
             return;
         }
 
@@ -140,7 +141,6 @@ public class ConnectionManager : NetworkBehaviour
             response.Approved = false;
             response.Reason = "Room is full";
             response.Pending = false;
-            Debug.Log("ROOM IS FULL");
             return;
         }
 
@@ -215,15 +215,37 @@ public class ConnectionManager : NetworkBehaviour
 
             SetUIConnected(false);
 
-            if (!wasHost)
+            // ?? ถ้าเรากดออกเอง
+            if (isLeavingManually)
             {
-                // ? แปลว่าเราเป็น client ? host หาย
-                SetError("Disconnected");
+                SetError("You left the game");
+                isLeavingManually = false;
+                return;
+            }
+
+            string reason = NetworkManager.Singleton.DisconnectReason;
+
+            if (!string.IsNullOrEmpty(reason))
+            {
+                if (reason.Contains("Name already in use"))
+                {
+                    SetError("invalid username");
+                }
+                else if (reason.Contains("Room is full"))
+                {
+                    SetError("room is full");
+                }
+                else
+                {
+                    SetError("Disconnected"); // ?? ไม่โชว์ raw error แล้ว
+                }
             }
             else
             {
-                // host ออกเอง
-                SetError("You left the game");
+                if (!wasHost)
+                    SetError("Disconnected");
+                else
+                    SetError("You left the game");
             }
 
             if (GameManager.instance != null)
@@ -263,6 +285,8 @@ public class ConnectionManager : NetworkBehaviour
 
     public void OnLeaveButtonClick()
     {
+        isLeavingManually = true;
+
         if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.Shutdown();
@@ -280,7 +304,14 @@ public class ConnectionManager : NetworkBehaviour
     // -------------------------
     public async void StartHostWithRoom()
     {
-        string username = usernameInput.text;
+        string username = usernameInput.text.Trim();
+
+        if (string.IsNullOrEmpty(username))
+        {
+            SetError("pls insert username");
+            return;
+        }
+
         LocalUsername = username;
 
         string joinCode = await relayManager.StartHostWithRelay(username, 0);
@@ -302,7 +333,14 @@ public class ConnectionManager : NetworkBehaviour
             return;
         }
 
-        string username = usernameInput.text;
+        string username = usernameInput.text.Trim();
+
+        if (string.IsNullOrEmpty(username))
+        {
+            SetError("pls insert username");
+            return;
+        }
+
         LocalUsername = username;
 
         bool success = await relayManager.StartClientWithRelay(code, username, 0);
@@ -310,6 +348,7 @@ public class ConnectionManager : NetworkBehaviour
         if (!success)
         {
             SetError("Join failed");
+            return;
         }
 
         GameManager.instance.EnterLobby();
