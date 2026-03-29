@@ -47,13 +47,21 @@ public class PlayerAppearance : NetworkBehaviour
     {
         Color c = availableColors[index];
 
-        // ?? body
-        bodyRenderer.material.color = c;
+        // ?? body (ทุก material)
+        var mats = bodyRenderer.materials;
+        for (int i = 0; i < mats.Length; i++)
+        {
+            mats[i].color = c;
+        }
 
-        // ?? head (ทุกหัว)
+        // ?? head
         foreach (var r in headRenderers)
         {
-            r.material.color = c;
+            var headMats = r.materials;
+            for (int i = 0; i < headMats.Length; i++)
+            {
+                headMats[i].color = c;
+            }
         }
     }
 
