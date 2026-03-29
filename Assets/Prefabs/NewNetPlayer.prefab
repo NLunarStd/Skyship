@@ -96,6 +96,7 @@ GameObject:
   - component: {fileID: -6769294709907493114}
   - component: {fileID: 5877920528908285264}
   - component: {fileID: 5222620459188880387}
+  - component: {fileID: -9108476803206037369}
   m_Layer: 7
   m_Name: NewNetPlayer
   m_TagString: Player
@@ -255,7 +256,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3236021937
+  GlobalObjectIdHash: 3170691902
   InScenePlacedSourceGlobalObjectIdHash: 3236021937
   DeferredDespawnTick: 0
   Ownership: 1
@@ -479,6 +480,25 @@ MonoBehaviour:
     m_InternalValue: 0
   headIndex:
     m_InternalValue: 0
+--- !u!114 &-9108476803206037369
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 229600660712970015}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe870dde1b5fb7a4eb3d4fbdbd382073, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerBoost
+  ShowTopMostFoldoutHeaderGroup: 1
+  speedBoostStr: 1.2
+  speedBoostDur: 5
+  jumpBoostStr: 1.2
+  jumpBoostDur: 5
+  speedBoostKey: {fileID: 8404613436760124401, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  jumpBoostKey: {fileID: 8278742479176067018, guid: 052faaac586de48259a63d0c4782560b, type: 3}
 --- !u!1 &824410849627228756
 GameObject:
   m_ObjectHideFlags: 0

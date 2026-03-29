@@ -1,8 +1,13 @@
 <!-- UNITY CODE ASSIST INSTRUCTIONS START -->
 - Project name: Skyship
-- Unity version: Unity 6000.0.67f1
+- Unity version: Unity 6000.3.7f1
+- Active scene:
+  - Tags:
+    - Untagged, Respawn, Finish, EditorOnly, MainCamera, Player, GameController, Pickup, Ship, ShipCore, MainVirtualCamera, SpeedBoost, JumpBoost
+  - Layers:
+    - Default, TransparentFX, Ignore Raycast, Water, UI, Item, Character, Ground, HeldItem, Ship
 - Active game object:
-  - Name: GameManager
-  - Tag: Untagged
+  - Name: JumpBoost
+  - Tag: JumpBoost
   - Layer: Default
 <!-- UNITY CODE ASSIST INSTRUCTIONS END -->
