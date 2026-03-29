@@ -3,6 +3,7 @@ using Unity.Netcode;
 using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Rendering.VirtualTexturing;
 
 [RequireComponent(typeof(Rigidbody))]
 public class NetworkPlayerMovement : NetworkBehaviour
@@ -32,7 +33,9 @@ public class NetworkPlayerMovement : NetworkBehaviour
 
     private bool isTeleporting = false;
 
-
+    private float jumpPower;
+    private float jumpPowerScale;
+    private float jumpPowTimer;
 
 
     void Start()
@@ -54,12 +57,27 @@ public class NetworkPlayerMovement : NetworkBehaviour
         {
             moveInput = moveAction.action.ReadValue<Vector2>();
             sprintPressed = sprintAction.action.IsPressed();
-
-            if (jumpAction.action.triggered && Time.time >= nextJumpTime)
+            jumpPowTimer += Time.deltaTime;
+            // Charge jump
+            if (jumpAction.action.WasPressedThisFrame() && Time.time >= nextJumpTime)
             {
-                HandleJump();
+                jumpPowTimer = 0;
+            }
+
+            if (jumpAction.action.WasReleasedThisFrame())
+            {
+                jumpPower = (jumpPowTimer/10 + 1) * jumpForce;
+                HandleJump(jumpPower);
                 nextJumpTime = Time.time + jumpCooldown;
             }
+            
+            // Original jump
+            //  if (jumpAction.action.triggered && Time.time >= nextJumpTime)
+            //  {
+            //      
+            //      HandleJump(jumpPower);
+            //      nextJumpTime = Time.time + jumpCooldown;
+            //  }
         }
         else
         {
@@ -102,7 +120,7 @@ public class NetworkPlayerMovement : NetworkBehaviour
         }
     }
 
-    private void HandleJump()
+    private void HandleJump(float jumpPower)
     {
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
@@ -124,24 +142,24 @@ public class NetworkPlayerMovement : NetworkBehaviour
 
         var netTransform = GetComponent<NetworkTransform>();
 
-        // ?? »Ô´ interpolation
+        // ?? ï¿½Ô´ interpolation
         netTransform.Interpolate = false;
 
-        // ?? ËÂØ´áÃ§·Ñé§ËÁ´
+        // ?? ï¿½ï¿½Ø´ï¿½Ã§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // ?? ÇÒÃì» (ãªé rb äÁèãªè transform)
+        // ?? ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ rb ï¿½ï¿½ï¿½ï¿½ï¿½ transform)
         rb.position = targetPos;
 
-        // ¡Ñ¹ physics à´é§
+        // ï¿½Ñ¹ physics ï¿½ï¿½
         rb.Sleep();
 
         yield return new WaitForSeconds(0.15f);
 
         rb.WakeUp();
 
-        // ? à»Ô´ interpolation ¡ÅÑº
+        // ? ï¿½Ô´ interpolation ï¿½ï¿½Ñº
         netTransform.Interpolate = true;
 
         isTeleporting = false;

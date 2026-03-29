@@ -1,11 +1,20 @@
+using System;
 using UnityEngine;
 
 public class BoostPickup : MonoBehaviour
 {
-    
-    
-    public void DisableOnContact()
+    private Collider collider;
+
+    private void Awake()
     {
-        Destroy(this.gameObject);
+        collider  = GetComponent<Collider>();
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            Destroy(this);
+        }
     }
 }

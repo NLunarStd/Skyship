@@ -10,6 +10,18 @@ public class EventManager : MonoBehaviour
 
     private readonly Dictionary<Delegate, Delegate> _delegateLookup = new Dictionary<Delegate, Delegate>();
 
+    //Ui events from kas
+    public event Action OnSpeedBoostPickup;
+    public event Action OnJumpBoostPickup;
+    public event Action OnSpeedBoostActive;
+    public event Action OnJumpBoostActive;
+
+    public void TriggerOnSpeedBoostPickup() => OnSpeedBoostPickup?.Invoke();
+    public void TriggerOnJumpBoostPickup() => OnJumpBoostPickup?.Invoke();
+    public void TriggerOnSpeedBoostActive() => OnSpeedBoostActive?.Invoke();
+    public void TriggerOnJumpBoostActive() => OnJumpBoostActive?.Invoke();
+    
+    
     void Awake()
     {
         if (Instance == null) { Instance = this; }

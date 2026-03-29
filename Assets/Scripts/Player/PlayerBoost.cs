@@ -1,9 +1,11 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
 using UnityEngine.UI;
-using Image = UnityEngine.UIElements.Image;
+using UnityEngine.EventSystems;
+
 
 public class PlayerBoost : NetworkBehaviour
 {
@@ -24,90 +26,108 @@ public class PlayerBoost : NetworkBehaviour
     [Header("Input & UI")]
     [SerializeField] private InputActionReference speedBoostKey;
     [SerializeField] private InputActionReference jumpBoostKey;
+
+    //events
+    [SerializeField] EventManager eventManager;
+
+    private float originalSpeed;
+    private float originalJump;
     
     private NetworkPlayerMovement networkPlayerMovement;
-    private GameObject speedBoostImage;
-    private GameObject jumpBoostImage;
-    
-    
     
     private Collider collider;
+    
     private void Awake()
     {
         networkPlayerMovement = GetComponent<NetworkPlayerMovement>();
-        speedBoostImage = GameObject.Find("SpeedBoostImg");
-        jumpBoostImage = GameObject.Find("JumpBoostImg");
         collider = GetComponent<Collider>();
+
+        originalJump = networkPlayerMovement.jumpForce;
+        originalSpeed = networkPlayerMovement.walkSpeed;
+        
+        
     }
     
     private void Update()
     {
+        if (speedBoostKey.action.WasPressedThisFrame())
+        {
+            if (!speedBoostActive && speedBoostPicked )
+            {
+                Debug.Log("BoostSpeed");
+                speedBoostActive = true;
+                speedBoostTimer = speedBoostDur;
+                EventManager.Instance.TriggerOnSpeedBoostActive();
+                speedBoostPicked = false;
+                networkPlayerMovement.walkSpeed = originalSpeed * speedBoostStr;
+            }
+        }
+        
+        if (jumpBoostKey.action.WasPressedThisFrame())
+        {
+            if (!jumpBoostActive && jumpBoostPicked)
+            {
+                Debug.Log("BoostJump");
+                jumpBoostActive = true;
+                jumpBoostTimer = jumpBoostDur;
+                EventManager.Instance.TriggerOnJumpBoostActive();
+                jumpBoostPicked = false;
+                networkPlayerMovement.jumpForce = originalJump * jumpBoostStr;
+            }   
+        }
+        
         if (speedBoostActive)
         {
             speedBoostTimer -= Time.deltaTime;
-            networkPlayerMovement.walkSpeed *= speedBoostStr;
             
             if (speedBoostTimer <= 0)
             {
                 speedBoostActive = false;
+                networkPlayerMovement.walkSpeed = originalSpeed;
             }
         }
-
-
+        
         if (jumpBoostActive)
         {
             jumpBoostTimer -= Time.deltaTime;
-            networkPlayerMovement.jumpForce *= jumpBoostStr;
             
             if (jumpBoostTimer <= 0)
             {
                 jumpBoostActive = false;
+                networkPlayerMovement.jumpForce = originalJump;
             }
-        }
-        
-    }
-
-    public void BoostSpeed()
-    {
-        if (!speedBoostActive &&  speedBoostKey.action.WasPressedThisFrame())
-        {
-            speedBoostActive = true;
-            speedBoostTimer = speedBoostDur;
-            speedBoostImage.SetActive(false);
-            speedBoostPicked = false;
-        }
-
-    }
-
-    public void BoostJump()
-    {
-        if (!jumpBoostActive && jumpBoostKey.action.WasPressedThisFrame())
-        {
-            jumpBoostActive = true;
-            jumpBoostTimer = jumpBoostDur;
-            jumpBoostImage.SetActive(false);
-            jumpBoostPicked = false;
         }
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag(TagHandle.GetExistingTag("SpeedBoost")) && !speedBoostPicked)
+        if (other.CompareTag(TagHandle.GetExistingTag("SpeedBoost"))) // && !speedBoostPicked
         {
-            // speed boost picked up
-            speedBoostPicked = true;
-            speedBoostImage.SetActive(true);
-            
+            OnSpeedPickup();
         }
 
-        if (other.CompareTag(TagHandle.GetExistingTag("JumpBoost")) && !jumpBoostPicked)
+        if (other.CompareTag(TagHandle.GetExistingTag("JumpBoost")) ) //&& !jumpBoostPicked
         {
-            // jump boost picked up
-            jumpBoostPicked = true;
-            jumpBoostImage.SetActive(true);
-
+            OnJumpPikcup();
         }
+    }
 
+    private void OnSpeedPickup()
+    {
+        // speed boost picked up
+        speedBoostPicked = true;
+        // event call
+        EventManager.Instance.TriggerOnSpeedBoostPickup();
+        Debug.Log("Collided with speed boost");
+    }
+
+    private void OnJumpPikcup()
+    {
+        // jump boost picked up
+        jumpBoostPicked = true;
+        // event call
+        EventManager.Instance.TriggerOnJumpBoostPickup();
+        Debug.Log("Collided with jump boost");
     }
     
 }
