@@ -97,7 +97,7 @@ public class SteeringInteract : MonoBehaviour
 
         TogglePlayerScripts(activeController, false);
 
-        EventManager.Publish(new CharacterControlRudderEvent(true));
+        EventManager.Publish(new CharacterControlRudderEvent(true, ship));
 
     }
 
@@ -107,7 +107,7 @@ public class SteeringInteract : MonoBehaviour
         print("Exiting ship control for " + activeController.name);
         TogglePlayerScripts(activeController, true);
 
-        EventManager.Publish(new CharacterControlRudderEvent(false));
+        EventManager.Publish(new CharacterControlRudderEvent(false, ship));
 
         if (NetworkManager.Singleton.IsServer || NetworkManager.Singleton.IsHost)
         {

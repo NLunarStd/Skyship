@@ -23,6 +23,7 @@ public class NetworkShipSteeringControl : NetworkBehaviour
     void Update()
     {
         if (!IsOwner) return;
+        if (!ShipControlMode) return;
 
         if (ShipControlMode)
         {
@@ -83,5 +84,10 @@ public class NetworkShipSteeringControl : NetworkBehaviour
         ship.rudderAngle.Value = Mathf.Clamp(currentAngle, -ship.maxRudder, ship.maxRudder);
     }
 
-    void OnCharacterControlRudder(CharacterControlRudderEvent e) => ShipControlMode = e.value;
+    void OnCharacterControlRudder(CharacterControlRudderEvent e)
+    {
+        if (e.ship != ship) return;
+
+        ShipControlMode = e.value;
+    }
 }

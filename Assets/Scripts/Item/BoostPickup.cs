@@ -7,15 +7,16 @@ public class BoostPickup : NetworkBehaviour
 {
     private void OnTriggerEnter(Collider other)
     {
-        
+        if (!other.CompareTag("Player")) return;
+
         DestroyServerRpc();
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void DestroyServerRpc()
     {
         Debug.Log("Destroying");
-         
-        this.gameObject.SetActive(false);
+
+        NetworkObject.Despawn(true);
     }
 }
