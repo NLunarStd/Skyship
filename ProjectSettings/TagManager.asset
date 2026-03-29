@@ -8,6 +8,8 @@ TagManager:
   - Ship
   - ShipCore
   - MainVirtualCamera
+  - SpeedBoost
+  - JumpBoost
   layers:
   - Default
   - TransparentFX
