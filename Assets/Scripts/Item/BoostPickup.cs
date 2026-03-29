@@ -1,20 +1,21 @@
 using System;
+using Unity.Netcode;
 using UnityEngine;
 
-public class BoostPickup : MonoBehaviour
+
+public class BoostPickup : NetworkBehaviour
 {
-    private Collider collider;
-
-    private void Awake()
-    {
-        collider  = GetComponent<Collider>();
-    }
-
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Player"))
-        {
-            Destroy(this);
-        }
+        
+        DestroyServerRpc();
+    }
+
+    [ServerRpc]
+    private void DestroyServerRpc()
+    {
+        Debug.Log("Destroying");
+         
+        this.gameObject.SetActive(false);
     }
 }

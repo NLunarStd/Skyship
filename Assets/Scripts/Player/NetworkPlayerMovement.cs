@@ -64,9 +64,9 @@ public class NetworkPlayerMovement : NetworkBehaviour
                 jumpPowTimer = 0;
             }
 
-            if (jumpAction.action.WasReleasedThisFrame())
+            if (jumpAction.action.WasReleasedThisFrame() && Time.time >= nextJumpTime)
             {
-                jumpPower = (jumpPowTimer/10 + 1) * jumpForce;
+                jumpPower = (jumpPowTimer/4 + 1) * jumpForce;
                 HandleJump(jumpPower);
                 nextJumpTime = Time.time + jumpCooldown;
             }
@@ -123,7 +123,7 @@ public class NetworkPlayerMovement : NetworkBehaviour
     private void HandleJump(float jumpPower)
     {
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-        rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+        rb.AddForce(transform.up * jumpPower, ForceMode.Impulse);
     }
 
     private void ControlDrag()
