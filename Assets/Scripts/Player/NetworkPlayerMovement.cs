@@ -8,6 +8,9 @@ using UnityEngine.Rendering.VirtualTexturing;
 [RequireComponent(typeof(Rigidbody))]
 public class NetworkPlayerMovement : NetworkBehaviour
 {
+    [Header("Animator")]
+    public Animator animator;
+
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
     public float sprintSpeed = 9f;
@@ -57,11 +60,16 @@ public class NetworkPlayerMovement : NetworkBehaviour
         {
             moveInput = moveAction.action.ReadValue<Vector2>();
             sprintPressed = sprintAction.action.IsPressed();
+
+            // RunAnimation
+            animator.SetBool("Run", moveInput != Vector2.zero);
+
             jumpPowTimer += Time.deltaTime;
             // Charge jump
             if (jumpAction.action.WasPressedThisFrame() && Time.time >= nextJumpTime)
             {
                 jumpPowTimer = 0;
+                JumpAnimation();
             }
 
             if (jumpAction.action.WasReleasedThisFrame() && Time.time >= nextJumpTime)
@@ -69,6 +77,7 @@ public class NetworkPlayerMovement : NetworkBehaviour
                 jumpPower = (jumpPowTimer/4 + 1) * jumpForce;
                 HandleJump(jumpPower);
                 nextJumpTime = Time.time + jumpCooldown;
+                JumpAnimation();
             }
             
             // Original jump
@@ -95,6 +104,11 @@ public class NetworkPlayerMovement : NetworkBehaviour
         RotatePlayer();
     }
 
+    void JumpAnimation()
+    {
+        animator.SetTrigger("Jump");
+        Debug.Log("JumpAnimation Called!");
+    }
     private void MovePlayer()
     {
         float targetSpeed = sprintPressed ? sprintSpeed : walkSpeed;

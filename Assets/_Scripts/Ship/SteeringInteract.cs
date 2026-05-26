@@ -24,6 +24,7 @@ public class SteeringInteract : MonoBehaviour
     public InputActionReference controlRudder;
     public InputActionReference exitRudder;
 
+    private GameObject DrivingPlayer;
 
     void Update()
     {
@@ -91,6 +92,14 @@ public class SteeringInteract : MonoBehaviour
         if (outline != null) outline.enabled = value;
     }
 
+    void EnterShipControlAnimation()
+    {
+
+    }
+    void ExitShipControlAnimation()
+    {
+
+    }
     public void EnterShipControl(GameObject player)
     {
         activeController = player;
@@ -98,6 +107,18 @@ public class SteeringInteract : MonoBehaviour
         TogglePlayerScripts(activeController, false);
 
         EventManager.Publish(new CharacterControlRudderEvent(true, ship));
+
+        Animator animator = player.GetComponentInChildren<Animator>();
+
+        if (animator != null)
+        {
+            animator.SetTrigger("ControlShip");
+            DrivingPlayer = player;
+        }
+        else
+        {
+            Debug.Log("ShipSteer Can't find the Animator :(");
+        }
 
     }
 
@@ -119,6 +140,26 @@ public class SteeringInteract : MonoBehaviour
         }
 
         activeController = null;
+
+        if (DrivingPlayer != null)
+        {
+            Animator animator = DrivingPlayer.GetComponentInChildren<Animator>();
+
+            if (animator != null)
+            {
+                animator.SetTrigger("ExitControlShip");
+                DrivingPlayer = null;
+            }
+            else
+            {
+                Debug.Log("ShipSteer Can't find the Animator :(");
+            }
+        }
+        else
+        {
+            Debug.Log("DrivingPlayer is null");
+        }
+        
     }
     private void StopShipImmediately()
     {

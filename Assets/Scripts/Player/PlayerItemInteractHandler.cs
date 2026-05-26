@@ -6,6 +6,9 @@ using UnityEngine.UI;
 
 public class PlayerItemInteractHandler : NetworkBehaviour
 {
+    [Header("Animator")]
+    public Animator animator;
+
     [Header("Detection Settings")]
     [SerializeField] private float liftDistance = 2.5f;
     [SerializeField] private Vector3 liftRayOffset;
@@ -104,6 +107,17 @@ public class PlayerItemInteractHandler : NetworkBehaviour
         hoveredHighlight = null;
     }
 
+    void GrabAnimation()
+    {
+        animator.SetTrigger("Grab");
+        Debug.Log("GrabAnimation Called!");
+    }
+
+    void UnGrabAnimation()
+    {
+        animator.SetTrigger("UnGrab");
+        Debug.Log("UnGrabAnimation Called!");
+    }
     private void HandlePickInput()
     {
         if (pickAction.action.WasPressedThisFrame())
@@ -114,6 +128,7 @@ public class PlayerItemInteractHandler : NetworkBehaviour
                 if (networkObj != null)
                 {
                     RequestPickUpServerRpc(networkObj.NetworkObjectId);
+                    GrabAnimation();
                 }
             }
             else if (IsHoldingItem)
@@ -128,12 +143,17 @@ public class PlayerItemInteractHandler : NetworkBehaviour
             float holdDuration = Time.time - pickPressedTime;
             isChargingThrow = false;
 
-            if (holdDuration < 0.5f) RequestDropServerRpc();
+            if (holdDuration < 0.5f)
+            {
+                RequestDropServerRpc();
+                UnGrabAnimation();
+            }
             else
             {
                 float chargeRatio = Mathf.InverseLerp(0.5f, chargeTimeForMaxPower, holdDuration);
                 float finalForce = Mathf.Lerp(minThrowForce, maxThrowForce, chargeRatio);
                 RequestThrowServerRpc(finalForce);
+                UnGrabAnimation();
             }
         }
     }
