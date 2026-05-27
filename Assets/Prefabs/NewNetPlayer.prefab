@@ -1917,6 +1917,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 265766274217486953, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
+      propertyPath: playOnAwake
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 265766274217486953, guid: d3015b7eea383f64d8b81f965cc466e7, type: 3}
       propertyPath: InitialModule.startSize.scalar
       value: 1
       objectReference: {fileID: 0}
@@ -2334,6 +2338,10 @@ PrefabInstance:
     - target: {fileID: 3935399312201689445, guid: 9366b62df1a46954bb10c2030be115fd, type: 3}
       propertyPath: m_Name
       value: SpeedBoost Particle System
+      objectReference: {fileID: 0}
+    - target: {fileID: 7435703394214261589, guid: 9366b62df1a46954bb10c2030be115fd, type: 3}
+      propertyPath: playOnAwake
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7435703394214261589, guid: 9366b62df1a46954bb10c2030be115fd, type: 3}
       propertyPath: InitialModule.startColor.maxColor.a
