@@ -31,6 +31,7 @@ public class PlayerBoost : NetworkBehaviour
     [SerializeField] EventManager eventManager;
 
     private float originalSpeed;
+    private float originalSprint;
     private float originalJump;
     
     private NetworkPlayerMovement networkPlayerMovement;
@@ -44,12 +45,13 @@ public class PlayerBoost : NetworkBehaviour
 
         originalJump = networkPlayerMovement.jumpForce;
         originalSpeed = networkPlayerMovement.walkSpeed;
-        
-        
+        originalSprint = networkPlayerMovement.sprintSpeed;
     }
     
     private void Update()
     {
+        if (!IsOwner) return;
+
         if (speedBoostKey.action.WasPressedThisFrame())
         {
             if (!speedBoostActive && speedBoostPicked )
@@ -59,7 +61,10 @@ public class PlayerBoost : NetworkBehaviour
                 speedBoostTimer = speedBoostDur;
                 EventManager.Instance.TriggerOnSpeedBoostActive();
                 speedBoostPicked = false;
+                
+                // Boost both walk and sprint speed
                 networkPlayerMovement.walkSpeed = originalSpeed * speedBoostStr;
+                networkPlayerMovement.sprintSpeed = originalSprint * speedBoostStr;
             }
         }
         
@@ -84,6 +89,7 @@ public class PlayerBoost : NetworkBehaviour
             {
                 speedBoostActive = false;
                 networkPlayerMovement.walkSpeed = originalSpeed;
+                networkPlayerMovement.sprintSpeed = originalSprint;
             }
         }
         
@@ -101,6 +107,8 @@ public class PlayerBoost : NetworkBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        if (!IsOwner) return;
+
         if (other.CompareTag(TagHandle.GetExistingTag("SpeedBoost"))) // && !speedBoostPicked
         {
             OnSpeedPickup();

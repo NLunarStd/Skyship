@@ -19,6 +19,17 @@ public class GameManager : NetworkBehaviour
         {
             instance = this;
             DontDestroyOnLoad(gameObject); // กันโดนสร้างซ้ำ
+
+            // Prevent held items from pushing the ship or characters
+            int heldItemLayer = LayerMask.NameToLayer("HeldItem");
+            int shipLayer = LayerMask.NameToLayer("Ship");
+            int charLayer = LayerMask.NameToLayer("Character");
+
+            if (heldItemLayer != -1)
+            {
+                if (shipLayer != -1) Physics.IgnoreLayerCollision(heldItemLayer, shipLayer, true);
+                if (charLayer != -1) Physics.IgnoreLayerCollision(heldItemLayer, charLayer, true);
+            }
         }
         else
         {
@@ -309,7 +320,11 @@ public class GameManager : NetworkBehaviour
     {
         foreach (var spawner in FindObjectsOfType<ItemSpawner>()) { spawner.StopSpawning(); }
         foreach (var pooledItem in FindObjectsOfType<PooledItem>()) { if (pooledItem.gameObject.activeInHierarchy) pooledItem.ReturnToPool(); }
-        foreach (var ship in FindObjectsOfType<NetworkShipHandler>()) { ship.ResetShip(); }
+        foreach (var ship in FindObjectsOfType<NetworkShipHandler>()) 
+        { 
+            ship.ResetShip(); 
+            if (IsServer) ship.shipColor.Value = Color.white;
+        }
         foreach (var boost in FindObjectsOfType<BoostPickup>()) { boost.ResetBoost(); }
 
         matchTime = 300f;
@@ -406,6 +421,16 @@ public class GameManager : NetworkBehaviour
             Vector3 targetPos = GetGameSpawnPosition(slot);
 
             TeleportClientRpc(targetPos, client.ClientId);
+
+            // Sync ship color
+            if (IsServer && playerShips != null && slot >= 0 && slot < playerShips.Length && playerShips[slot] != null)
+            {
+                var appearance = client.PlayerObject.GetComponent<PlayerAppearance>();
+                if (appearance != null && appearance.availableColors.Length > appearance.colorIndex.Value)
+                {
+                    playerShips[slot].shipColor.Value = appearance.availableColors[appearance.colorIndex.Value];
+                }
+            }
         }
     }
    
@@ -483,6 +508,7 @@ public class GameManager : NetworkBehaviour
     }
 
     [SerializeField] private Transform[] gameSpawnPoints;
+    [SerializeField] private NetworkShipHandler[] playerShips;
 
     private Vector3 GetGameSpawnPosition(int slot)
     {

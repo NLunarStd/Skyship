@@ -510,6 +510,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+--- !u!23 &38294691 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5901893356585517859, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 932731221}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &38451426
 GameObject:
   m_ObjectHideFlags: 0
@@ -1960,7 +1965,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4329496868682857183, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_Name
-      value: Ship (3)
+      value: Ship4
       objectReference: {fileID: 0}
     - target: {fileID: 4788730785684413950, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_Size.x
@@ -2034,6 +2039,22 @@ PrefabInstance:
       propertyPath: turnSpeed
       value: 40
       objectReference: {fileID: 0}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: colorMeshes.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1289350711}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1643525507}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[2]'
+      value: 
+      objectReference: {fileID: 1137160958}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 2788636600716873395, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
@@ -5887,7 +5908,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4329496868682857183, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_Name
-      value: Ship (2)
+      value: Ship3
       objectReference: {fileID: 0}
     - target: {fileID: 4788730785684413950, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_Size.x
@@ -5961,6 +5982,22 @@ PrefabInstance:
       propertyPath: turnSpeed
       value: 40
       objectReference: {fileID: 0}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: colorMeshes.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1637634190}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[1]'
+      value: 
+      objectReference: {fileID: 1029815799}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[2]'
+      value: 
+      objectReference: {fileID: 1995806666}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 2788636600716873395, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
@@ -7416,7 +7453,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4329496868682857183, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_Name
-      value: Ship (1)
+      value: Ship2
       objectReference: {fileID: 0}
     - target: {fileID: 4788730785684413950, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_Size.x
@@ -7490,6 +7527,22 @@ PrefabInstance:
       propertyPath: turnSpeed
       value: 40
       objectReference: {fileID: 0}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: colorMeshes.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1579537425}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[1]'
+      value: 
+      objectReference: {fileID: 38294691}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[2]'
+      value: 
+      objectReference: {fileID: 932731229}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 2788636600716873395, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
@@ -7771,6 +7824,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 831643626}
   m_CullTransparentMesh: 1
+--- !u!23 &838047253 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5901893356585517859, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 318026479}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &844205730
 GameObject:
   m_ObjectHideFlags: 0
@@ -8610,6 +8668,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4068373912626513877, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+--- !u!23 &932731229 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3575641881151511511, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 932731221}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &934592917
 GameObject:
   m_ObjectHideFlags: 0
@@ -9150,6 +9213,11 @@ MonoBehaviour:
 Transform:
   m_CorrespondingSourceObject: {fileID: 4977156196960234058, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
   m_PrefabInstance: {fileID: 3704936220138062225}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &1029815799 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5901893356585517859, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 1995806658}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1037779978
 GameObject:
@@ -10307,6 +10375,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4068373912626513877, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+--- !u!23 &1137160958 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3575641881151511511, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 1137160950}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1138585137
 GameObject:
   m_ObjectHideFlags: 0
@@ -10487,6 +10560,11 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!23 &1146067958 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3575641881151511511, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 318026479}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1146726709
 GameObject:
   m_ObjectHideFlags: 0
@@ -12333,6 +12411,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1285099742}
   m_CullTransparentMesh: 1
+--- !u!23 &1289350711 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1170970068873931921, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 1137160950}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1305660042
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -14931,6 +15014,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1995806659}
   m_LocalEulerAnglesHint: {x: 0, y: -180, z: 0}
+--- !u!23 &1579537425 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1170970068873931921, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 932731221}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1584419308 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -7367559088687387456, guid: 691835229fea05b4ea6ea48c367d05a8, type: 3}
@@ -14958,6 +15046,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -2721331549007201028, guid: 691835229fea05b4ea6ea48c367d05a8, type: 3}
+--- !u!23 &1585934590 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1170970068873931921, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 318026479}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1616005215
 GameObject:
   m_ObjectHideFlags: 0
@@ -15303,6 +15396,16 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 8321685774571456786, guid: f3491cee13438944682522aaaafe512f, type: 3}
+--- !u!23 &1637634190 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 1170970068873931921, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 1995806658}
+  m_PrefabAsset: {fileID: 0}
+--- !u!23 &1643525507 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 5901893356585517859, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 1137160950}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1652347417
 GameObject:
   m_ObjectHideFlags: 0
@@ -18214,6 +18317,11 @@ MonoBehaviour:
   - {fileID: 354193411}
   - {fileID: 1080451678}
   - {fileID: 1430090497}
+  playerShips:
+  - {fileID: 1020395548}
+  - {fileID: 812035102}
+  - {fileID: 578865136}
+  - {fileID: 201140563}
 --- !u!114 &1930024955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -19189,6 +19297,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4068373912626513877, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+--- !u!23 &1995806666 stripped
+MeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 3575641881151511511, guid: 756dd42209771cd48bcde516eabcbc87, type: 3}
+  m_PrefabInstance: {fileID: 1995806658}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2008788131
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20559,7 +20672,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4329496868682857183, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_Name
-      value: Ship
+      value: Ship1
       objectReference: {fileID: 0}
     - target: {fileID: 4788730785684413950, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_Size.x
@@ -20633,6 +20746,22 @@ PrefabInstance:
       propertyPath: turnSpeed
       value: 40
       objectReference: {fileID: 0}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: colorMeshes.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1585934590}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[1]'
+      value: 
+      objectReference: {fileID: 838047253}
+    - target: {fileID: 8429733822175919881, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
+      propertyPath: 'colorMeshes.Array.data[2]'
+      value: 
+      objectReference: {fileID: 1146067958}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: 2788636600716873395, guid: a680d8291f3416249a50d9abfb02374a, type: 3}

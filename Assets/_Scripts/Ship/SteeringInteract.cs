@@ -1,4 +1,4 @@
-﻿using Unity.Netcode;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -36,7 +36,15 @@ public class SteeringInteract : MonoBehaviour
         {
             if (hoveredPlayer != null && controlRudder.action.WasPressedThisFrame())
             {
-                EnterShipControl(hoveredPlayer);
+                var itemHandler = hoveredPlayer.GetComponentInParent<PlayerItemInteractHandler>();
+                if (itemHandler != null && itemHandler.IsHoldingItem)
+                {
+                    Debug.Log("Cannot steer ship while holding an item.");
+                }
+                else
+                {
+                    EnterShipControl(hoveredPlayer);
+                }
             }
         }
         else
@@ -72,6 +80,28 @@ public class SteeringInteract : MonoBehaviour
         {
             if (hit.collider.CompareTag("Player"))
             {
+                var netObj = hit.collider.GetComponentInParent<NetworkObject>();
+                if (netObj != null && !netObj.IsOwner)
+                {
+                    if (hoveredPlayer != null)
+                    {
+                        SetHighlight(false);
+                        hoveredPlayer = null;
+                    }
+                    return;
+                }
+
+                var itemHandler = hit.collider.GetComponentInParent<PlayerItemInteractHandler>();
+                if (itemHandler != null && itemHandler.IsHoldingItem)
+                {
+                    if (hoveredPlayer != null)
+                    {
+                        SetHighlight(false);
+                        hoveredPlayer = null;
+                    }
+                    return;
+                }
+
                 if (hoveredPlayer != hit.collider.gameObject)
                 {
                     hoveredPlayer = hit.collider.gameObject;

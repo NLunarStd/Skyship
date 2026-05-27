@@ -502,10 +502,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerBoost
   ShowTopMostFoldoutHeaderGroup: 1
-  speedBoostStr: 1.2
-  speedBoostDur: 5
-  jumpBoostStr: 1.2
-  jumpBoostDur: 5
+  speedBoostStr: 2
+  speedBoostDur: 10
+  jumpBoostStr: 2
+  jumpBoostDur: 10
   speedBoostKey: {fileID: 8404613436760124401, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   jumpBoostKey: {fileID: 8278742479176067018, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   eventManager: {fileID: 0}

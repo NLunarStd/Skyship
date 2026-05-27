@@ -1,4 +1,4 @@
-using Unity.Netcode;
+﻿using Unity.Netcode;
 using UnityEngine;
 
 public class PlayerAppearance : NetworkBehaviour
@@ -70,7 +70,7 @@ public class PlayerAppearance : NetworkBehaviour
     {
         Color c = availableColors[index];
 
-        // body (�ء material)
+        // body (ทุก material)
         var mats = bodyRenderer.materials;
         for (int i = 0; i < mats.Length; i++)
         {
@@ -101,7 +101,7 @@ public class PlayerAppearance : NetworkBehaviour
     {
         typeIndex.Value = index;
 
-        // reset head index �ѹ out of range
+        // reset head index กัน out of range
         headIndex.Value = 0;
     }
 

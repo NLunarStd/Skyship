@@ -166,6 +166,7 @@ public class PlayerItemInteractHandler : NetworkBehaviour
         {
             ToggleNetworkTransformClientRpc(networkObjectId, false);
             SetItemLayerClientRpc(networkObjectId, heldItemLayerName);
+            SetItemTriggerClientRpc(networkObjectId, true);
 
             heldItemRef.Value = networkObj;
 
@@ -180,6 +181,7 @@ public class PlayerItemInteractHandler : NetworkBehaviour
 
         ToggleNetworkTransformClientRpc(netObj.NetworkObjectId, true);
         SetItemLayerClientRpc(netObj.NetworkObjectId, itemLayerName);
+        SetItemTriggerClientRpc(netObj.NetworkObjectId, false);
 
         if (netObj.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
@@ -198,6 +200,7 @@ public class PlayerItemInteractHandler : NetworkBehaviour
         GameObject item = netObj.gameObject;
         ToggleNetworkTransformClientRpc(netObj.NetworkObjectId, true);
         SetItemLayerClientRpc(netObj.NetworkObjectId, itemLayerName);
+        SetItemTriggerClientRpc(netObj.NetworkObjectId, false);
 
         if (item.TryGetComponent<Rigidbody>(out Rigidbody rb))
         {
@@ -236,7 +239,30 @@ public class PlayerItemInteractHandler : NetworkBehaviour
     {
         if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(id, out var obj))
         {
-            obj.gameObject.layer = LayerMask.NameToLayer(layerName);
+            SetLayerRecursively(obj.gameObject, LayerMask.NameToLayer(layerName));
+        }
+    }
+
+    private void SetLayerRecursively(GameObject obj, int layer)
+    {
+        if (obj == null) return;
+        obj.layer = layer;
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
+    }
+
+    [ClientRpc]
+    private void SetItemTriggerClientRpc(ulong id, bool isTrigger)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(id, out var obj))
+        {
+            var colliders = obj.GetComponentsInChildren<Collider>(true);
+            foreach (var col in colliders)
+            {
+                col.isTrigger = isTrigger;
+            }
         }
     }
 }

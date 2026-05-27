@@ -16,7 +16,7 @@ public class BoostPickup : NetworkBehaviour
 
     private void Update()
     {
-        if (IsServer && !isCollected.Value)
+        if (!isCollected.Value)
         {
             transform.Rotate(0f, rotationSpeed * Time.deltaTime, 0f, Space.Self);
         }

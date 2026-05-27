@@ -4,6 +4,10 @@ using System.Collections.Generic;
 
 public class NetworkShipHandler : NetworkBehaviour
 {
+    [Header("Ship Appearance")]
+    public Renderer[] colorMeshes;
+    public NetworkVariable<Color> shipColor = new NetworkVariable<Color>(Color.white, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+
     [Header("Engine & Speed")]
     public NetworkVariable<bool> EngineOn = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public float moveSpeed = 10f;
@@ -53,6 +57,18 @@ public class NetworkShipHandler : NetworkBehaviour
             initialRotation = transform.rotation;
             lastPosition = rb.position;
             lastRotation = rb.rotation;
+        }
+
+        shipColor.OnValueChanged += (oldC, newC) => ApplyColor(newC);
+        ApplyColor(shipColor.Value);
+    }
+
+    private void ApplyColor(Color color)
+    {
+        if (colorMeshes == null) return;
+        foreach (Renderer r in colorMeshes)
+        {
+            if (r != null) r.material.color = color;
         }
     }
 
