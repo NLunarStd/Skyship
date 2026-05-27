@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -155,7 +155,7 @@ public class ConnectionManager : NetworkBehaviour
 
         response.Approved = true;
         response.CreatePlayerObject = true;
-        //response.PlayerPrefabHash = null; // �� default prefab
+        //response.PlayerPrefabHash = null; // ใช้ default prefab
         response.Position = spawnPoints[slot].position;
         response.Rotation = Quaternion.Euler(0, 180, 0);
         response.Pending = false;
@@ -197,14 +197,14 @@ public class ConnectionManager : NetworkBehaviour
 
     private IEnumerator TeleportPlayerToLobby(ulong clientId)
     {
-        // ? ����� player spawn ��͹
+        // ? รอให้ player spawn ก่อน
         yield return new WaitUntil(() =>
         {
             var client = NetworkManager.Singleton.ConnectedClients[clientId];
             return client.PlayerObject != null;
         });
 
-        yield return new WaitForSeconds(0.2f); // �ѹ desync
+        yield return new WaitForSeconds(0.2f); // กัน desync
 
         int slot = GetPlayerSlot(clientId);
         Vector3 targetPos = spawnPoints[slot].position;
@@ -237,7 +237,7 @@ public class ConnectionManager : NetworkBehaviour
 
             SetUIConnected(false);
 
-            // ?? �����ҡ��͡�ͧ
+            // ?? ถ้าเรากดออกเอง
             if (isLeavingManually)
             {
                 SetError("You left the game");
@@ -259,7 +259,7 @@ public class ConnectionManager : NetworkBehaviour
                 }
                 else
                 {
-                    SetError("Disconnected"); // ?? ������ raw error ����
+                    SetError("Disconnected"); // ?? ไม่โชว์ raw error แล้ว
                 }
             }
             else
@@ -326,14 +326,7 @@ public class ConnectionManager : NetworkBehaviour
     // -------------------------
     public async void StartHostWithRoom()
     {
-        string username = usernameInput.text.Trim();
-
-        if (string.IsNullOrEmpty(username))
-        {
-            SetError("pls insert username");
-            return;
-        }
-
+        string username = LoginManager.LocalUsername;
         LocalUsername = username;
 
         string joinCode = await relayManager.StartHostWithRelay(username, 0);
@@ -355,14 +348,7 @@ public class ConnectionManager : NetworkBehaviour
             return;
         }
 
-        string username = usernameInput.text.Trim();
-
-        if (string.IsNullOrEmpty(username))
-        {
-            SetError("pls insert username");
-            return;
-        }
-
+        string username = LoginManager.LocalUsername;
         LocalUsername = username;
 
         bool success = await relayManager.StartClientWithRelay(code, username, 0);
@@ -388,7 +374,7 @@ public class ConnectionManager : NetworkBehaviour
         string decoded = Encoding.UTF8.GetString(payload.Array, payload.Offset, payload.Count);
         if (string.IsNullOrWhiteSpace(decoded)) return false;
 
-        // �¡ username �͡�ҡ characterId
+        // แยก username ออกจาก characterId
         string[] parts = decoded.Split('|');
         username = parts[0].Trim();
         return true;
@@ -400,7 +386,7 @@ public class ConnectionManager : NetworkBehaviour
         {
             return spawnPoints[slot].position;
         }
-        return Vector3.zero; // ���ͨش�Դ���ͧ
+        return Vector3.zero; // หรือจุดเกิดสำรอง
     }
 
     public int GetPlayerSlot(ulong clientId)
@@ -410,7 +396,7 @@ public class ConnectionManager : NetworkBehaviour
             return slot;
         }
 
-        return -1; // �ѹ��Ҵ
+        return -1; // กันพลาด
     }
 
     public void CopyJoinCode()
@@ -425,7 +411,7 @@ public class ConnectionManager : NetworkBehaviour
             return;
         }
 
-        // ��� text �� "Room Code: ABC123" ? �Ѵ�������
+        // ถ้า text เป็น "Room Code: ABC123" ? ตัดเอาแค่โค้ด
         string code = text.Replace("Room Code: ", "").Trim();
 
         GUIUtility.systemCopyBuffer = code;
