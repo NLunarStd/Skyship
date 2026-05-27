@@ -18,7 +18,7 @@ public class GameManager : NetworkBehaviour
         if (instance == null)
         {
             instance = this;
-            DontDestroyOnLoad(gameObject); // �ѹⴹ���ҧ���
+            DontDestroyOnLoad(gameObject); // กันโดนสร้างซ้ำ
         }
         else
         {
@@ -250,6 +250,7 @@ public class GameManager : NetworkBehaviour
     int s1, int s2, int s3, int s4,
     string n1, string n2, string n3, string n4)
     {
+        SetCursorStateClientRpc(false);
         endGamePanel.SetActive(true);
 
         // winner
@@ -258,7 +259,7 @@ public class GameManager : NetworkBehaviour
 
         int maxScore = scores[0];
         int winnerIndex = 0;
-        int countMax = 1; // �Ѻ����ա�褹����� max
+        int countMax = 1; // นับว่ามีกี่คนที่ได้ max
 
         for (int i = 1; i < scores.Length; i++)
         {
@@ -274,7 +275,7 @@ public class GameManager : NetworkBehaviour
             }
         }
 
-        // ?? �Ѵ�Թ��
+        // ?? ตัดสินผล
         if (countMax > 1)
         {
             winnerText.text = "No Winner";
@@ -291,7 +292,7 @@ public class GameManager : NetworkBehaviour
             $"{names[2]} : {s3}\n" +
             $"{names[3]} : {s4}";
 
-        // ���� host ��ҹ��
+        // ปุ่ม host เท่านั้น
         bool isHost = NetworkManager.Singleton.IsHost;
         returnLobbyButton.gameObject.SetActive(isHost);
     }
@@ -307,11 +308,16 @@ public class GameManager : NetworkBehaviour
     private void ReturnToLobbyServerRpc()
     {
         ResetGame();
+        StartCoroutine(TeleportAllPlayersToLobby());
         ReturnToLobbyClientRpc();
     }
 
     private void ResetGame()
     {
+        foreach (var spawner in FindObjectsOfType<ItemSpawner>()) { spawner.StopSpawning(); }
+        foreach (var pooledItem in FindObjectsOfType<PooledItem>()) { if (pooledItem.gameObject.activeInHierarchy) pooledItem.ReturnToPool(); }
+        foreach (var ship in FindObjectsOfType<NetworkShipHandler>()) { ship.ResetShip(); }
+
         matchTime = 300f;
         isGameStarted = false;
 
@@ -334,7 +340,10 @@ public class GameManager : NetworkBehaviour
 
         isInLobby = true;
 
-        StartCoroutine(TeleportAllPlayersToLobby());
+        foreach (var steering in FindObjectsOfType<SteeringInteract>())
+        {
+            steering.ExitShipControl();
+        }
     }
 
     [SerializeField] private Transform[] lobbySpawnPoints;
@@ -342,6 +351,8 @@ public class GameManager : NetworkBehaviour
     private IEnumerator TeleportAllPlayersToLobby()
     {
         yield return new WaitForSeconds(0.2f);
+
+        if (!IsServer) yield break;
 
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
@@ -375,6 +386,7 @@ public class GameManager : NetworkBehaviour
         StartCoroutine(TeleportAllPlayers());
 
         SwitchToGameplayUIClientRpc();
+        SetCursorStateClientRpc(true);
         StartCountdownClientRpc();
 
 
@@ -382,7 +394,7 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator TeleportAllPlayers()
     {
-        // �����ء player spawn
+        // รอให้ทุก player spawn
         yield return new WaitUntil(() =>
         {
             foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
@@ -392,7 +404,7 @@ public class GameManager : NetworkBehaviour
             return true;
         });
 
-        yield return new WaitForSeconds(0.1f); // ��ͧ�ѹ desync
+        yield return new WaitForSeconds(0.1f); // ป้องกัน desync
 
         foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
@@ -526,4 +538,19 @@ public class GameManager : NetworkBehaviour
         }
     }
 
+    [ClientRpc]
+    private void SetCursorStateClientRpc(bool locked)
+    {
+        if (locked)
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+        }
+        else
+        {
+            Cursor.lockState = CursorLockMode.None;
+            Cursor.visible = true;
+        }
+    }
 }
+

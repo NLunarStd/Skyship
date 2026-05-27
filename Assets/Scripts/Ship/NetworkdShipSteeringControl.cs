@@ -22,52 +22,38 @@ public class NetworkShipSteeringControl : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner) return;
         if (!ShipControlMode) return;
 
-        if (ShipControlMode)
+        if (startShipAction.action.WasPressedThisFrame()) ToggleEngineServerRpc();
+
+        bool isBrakePressed = brakeAction.action.IsPressed();
+
+        if (NetworkManager.Singleton.IsListening)
         {
-            if (startShipAction.action.WasPressedThisFrame()) ToggleEngineServerRpc();
-
-            bool isBrakePressed = brakeAction.action.IsPressed();
-
-            if (!NetworkManager.Singleton.IsListening) return;
             UpdateBrakeServerRpc(isBrakePressed);
+            HandleRudderInput();
         }
-        else
-        {
-            if (!NetworkManager.Singleton.IsListening) return;
-            UpdateBrakeServerRpc(false);
-        }
-
-        HandleRudderInput();
     }
 
     private void HandleRudderInput()
     {
-        if (ShipControlMode)
-        {
-            float input = 0f;
-            if (turnLeft.action.IsPressed()) input = -1f;
-            else if (turnRight.action.IsPressed()) input = 1f;
+        float input = 0f;
+        if (turnLeft.action.IsPressed()) input = -1f;
+        else if (turnRight.action.IsPressed()) input = 1f;
 
-            UpdateRudderServerRpc(input, true);
-        }
-        else
-        {
-            UpdateRudderServerRpc(0f, false);
-        }
+        UpdateRudderServerRpc(input, true);
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void ToggleEngineServerRpc() => ship.EngineOn.Value = !ship.EngineOn.Value;
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void UpdateBrakeServerRpc(bool braking)
     {
         ship.IsBraking.Value = braking;
     }
-    [ServerRpc]
+
+    [ServerRpc(RequireOwnership = false)]
     private void UpdateRudderServerRpc(float input, bool isControlling)
     {
         float currentAngle = ship.rudderAngle.Value;
@@ -84,10 +70,54 @@ public class NetworkShipSteeringControl : NetworkBehaviour
         ship.rudderAngle.Value = Mathf.Clamp(currentAngle, -ship.maxRudder, ship.maxRudder);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void StopShipServerRpc()
+    {
+        if (ship != null)
+        {
+            ship.EngineOn.Value = false;
+            ship.IsBraking.Value = false;
+            ship.ForceStop();
+        }
+    }
+
     void OnCharacterControlRudder(CharacterControlRudderEvent e)
     {
         if (e.ship != ship) return;
 
         ShipControlMode = e.value;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void SetPlayerDrivingServerRpc(ulong networkObjectId, bool isDriving)
+    {
+        // Execute on the Server immediately so the server's physics engine doesn't get blocked
+        ApplyDrivingPhysicsState(networkObjectId, isDriving);
+        
+        // Sync to all clients
+        SetPlayerDrivingClientRpc(networkObjectId, isDriving);
+    }
+
+    [ClientRpc]
+    private void SetPlayerDrivingClientRpc(ulong networkObjectId, bool isDriving)
+    {
+        if (IsServer) return; // Host already ran it in ServerRpc
+        ApplyDrivingPhysicsState(networkObjectId, isDriving);
+    }
+
+    private void ApplyDrivingPhysicsState(ulong networkObjectId, bool isDriving)
+    {
+        if (NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(networkObjectId, out var playerObj))
+        {
+            // Disable ALL colliders on the player so they absolutely cannot block the ship
+            var cols = playerObj.GetComponentsInChildren<Collider>();
+            foreach (var c in cols)
+            {
+                c.enabled = !isDriving;
+            }
+            
+            var rb = playerObj.GetComponent<Rigidbody>();
+            if (rb != null) rb.isKinematic = isDriving;
+        }
     }
 }

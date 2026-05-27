@@ -1,83 +1,70 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
+[DefaultExecutionOrder(100)]
 public class CameraFollow : MonoBehaviour
 {
     public Transform target;
 
-    public Vector3 offset = new Vector3(0, 10, -8);
-    public float moveSmooth = 5f;
+    [Header("Distance & Zoom")]
+    public float distance = 6f;
+    public float height = 2f;
+    public float minDistance = 2f;
+    public float maxDistance = 15f;
+    public float zoomSpeed = 0.01f;
 
-    public float rotateSpeed = 360f;   // องศาต่อวินาที
-    public float topDownAngle = 50f;
+    [Header("Mouse Look")]
+    public float mouseSensitivity = 0.2f;
 
-    private float currentYAngle = 0f;
-    private float targetYAngle = 0f;
+    [Header("Smooth")]
+    public float smoothSpeed = 10f;
 
-    [Header("Zoom Offsets")]
-    public Vector3 farOffset = new Vector3(0, 14, -14);
-    public Vector3 nearOffset = new Vector3(0, 6, -5);
+    [Header("Vertical Rotation")]
+    public float minPitch = -20f;
+    public float maxPitch = 70f;
 
-    [Header("Zoom Angles")]
-    public float farAngle = 65f;
-    public float nearAngle = 30f;
+    private float yaw;
+    private float pitch = 20f;
 
-    [Header("Zoom")]
-    public float zoom = 0f;
-    public float zoomSpeed = 5f;
-    public float minZoom = 0f;
-    public float maxZoom = 1f;
-
-
-    private void Start()
+    void Start()
     {
-        
-    }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Q))
-            targetYAngle -= 90f;
-
-        if (Input.GetKeyDown(KeyCode.E))
-            targetYAngle += 90f;
-
-        float scroll = Input.mouseScrollDelta.y;
-        zoom += scroll * zoomSpeed * Time.deltaTime;
-        zoom = Mathf.Clamp(zoom, minZoom, maxZoom);
     }
 
     void LateUpdate()
     {
         if (target == null) return;
 
-        // หมุนซ้ายขวา
-        currentYAngle = Mathf.MoveTowardsAngle(
-            currentYAngle,
-            targetYAngle,
-            rotateSpeed * Time.deltaTime
-        );
+        Vector2 mouseDelta = Mouse.current.delta.ReadValue();
+        yaw += mouseDelta.x * mouseSensitivity;
+        pitch -= mouseDelta.y * mouseSensitivity;
 
-        // ? lerp offset ตาม zoom
-        Vector3 offset = Vector3.Lerp(farOffset, nearOffset, zoom);
+        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
-        // หมุนตามแกน Y
-        Quaternion rot = Quaternion.Euler(0, currentYAngle, 0);
-        Vector3 rotatedOffset = rot * offset;
+        float scroll = Mouse.current.scroll.ReadValue().y;
+        if (Mathf.Abs(scroll) > 0.01f)
+        {
+            distance -= scroll * zoomSpeed;
+            distance = Mathf.Clamp(distance, minDistance, maxDistance);
+        }
 
-        // ตำแหน่งกล้อง
-        Vector3 desiredPosition = target.position + rotatedOffset;
+        Quaternion rotation = Quaternion.Euler(pitch, yaw, 0);
+
+        Vector3 desiredPosition =
+            target.position
+            - rotation * Vector3.forward * distance
+            + Vector3.up * height;
 
         transform.position = Vector3.Lerp(
             transform.position,
             desiredPosition,
-            moveSmooth * Time.deltaTime
+            smoothSpeed * Time.deltaTime
         );
 
-        // ? lerp มุมก้ม
-        float angle = Mathf.Lerp(farAngle, nearAngle, zoom);
-        transform.rotation = Quaternion.Euler(angle, currentYAngle, 0);
+        Vector3 lookTarget = target.position + Vector3.up * 1.5f;
 
+        transform.rotation = Quaternion.LookRotation(
+            lookTarget - transform.position
+        );
     }
-
-
 }

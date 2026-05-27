@@ -1,4 +1,4 @@
-using Unity.Netcode;
+﻿using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -32,22 +32,23 @@ public class SteeringInteract : MonoBehaviour
         CheckForPlayer();
 
 
-        if (hoveredPlayer != null && activeController == null)
+        if (activeController == null)
         {
-            if (controlRudder.action.WasPressedThisFrame())
+            if (hoveredPlayer != null && controlRudder.action.WasPressedThisFrame())
             {
                 EnterShipControl(hoveredPlayer);
             }
         }
-
-        if (activeController != null)
+        else
         {
-            if (exitRudder.action.WasPressedThisFrame())
+            if (controlRudder.action.WasPressedThisFrame())
             {
                 ExitShipControl();
             }
         }
+
     }
+
     void LateUpdate()
     {
         if (activeController != null && rudderUsingPos != null)
@@ -136,7 +137,11 @@ public class SteeringInteract : MonoBehaviour
         }
         else
         {
-            ship.EngineOn.Value = false;
+            var steering = GetComponent<NetworkShipSteeringControl>();
+            if (steering != null)
+            {
+                steering.StopShipServerRpc();
+            }
         }
 
         activeController = null;
@@ -168,18 +173,50 @@ public class SteeringInteract : MonoBehaviour
             ship.EngineOn.Value = false;
 
             ship.IsBraking.Value = false;
+            ship.ForceStop();
         }
     }
     private void TogglePlayerScripts(GameObject player, bool isEnabled)
     {
         if (player == null) return;
 
-        var playerMove = player.GetComponent<NetworkPlayerMovement>();
-        var playerInter = player.GetComponent<PlayerItemInteractHandler>();
+        var playerMove = player.GetComponentInParent<NetworkPlayerMovement>();
+        var playerInter = player.GetComponentInParent<PlayerItemInteractHandler>();
+        var rb = player.GetComponentInParent<Rigidbody>();
+        var cols = player.GetComponentsInChildren<Collider>();
 
         if (playerMove != null) playerMove.enabled = isEnabled;
         if (playerInter != null) playerInter.enabled = isEnabled;
+        
+        foreach (var c in cols)
+        {
+            c.enabled = isEnabled; // Disable player collider so they don't block the ship!
+        }
 
+        if (rb != null)
+        {
+            // If disabling scripts (entering ship control), make kinematic to avoid physics jitter
+            // If enabling scripts (exiting), restore kinematic state (local player should be non-kinematic)
+            rb.isKinematic = !isEnabled;
+        }
+
+        var netTransform = player.GetComponentInParent<Unity.Netcode.Components.NetworkTransform>();
+        if (netTransform != null)
+        {
+            netTransform.Interpolate = isEnabled; // Turn off interpolation while driving to prevent double-interpolation jitter!
+        }
+
+        // Synchronize the physics disable to the Server and all other clients!
+        var netObj = player.GetComponentInParent<NetworkObject>();
+        if (netObj != null && ship != null)
+        {
+            var steering = GetComponent<NetworkShipSteeringControl>();
+            if (steering != null)
+            {
+                // isEnabled = false means entering ship (isDriving = true)
+                steering.SetPlayerDrivingServerRpc(netObj.NetworkObjectId, !isEnabled);
+            }
+        }
     }
 
     public bool IsCurrentController(GameObject player)

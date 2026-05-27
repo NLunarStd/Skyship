@@ -306,7 +306,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ScorableItem
   itemFaction: 2
-  ScoreValue: 1
+  ScoreValue: 3
 --- !u!114 &-3845060998065455080
 MonoBehaviour:
   m_ObjectHideFlags: 0

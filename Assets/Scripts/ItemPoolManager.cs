@@ -65,30 +65,39 @@ public class ItemPoolManager : NetworkBehaviour
 
     public NetworkObject GetFromPool(GameObject prefab)
     {
-        if (prefabToPoolMap.TryGetValue(prefab, out PoolData pool))
+        if (!prefabToPoolMap.TryGetValue(prefab, out PoolData pool))
         {
-            if (pool.poolStack.Count == 0)
-            {
-                GameObject obj = Instantiate(pool.prefab);
-                NetworkObject netObj = obj.GetComponent<NetworkObject>();
-                netObj.Spawn();
-                return netObj;
-            }
-
-            NetworkObject netObjFromStack = pool.poolStack.Pop();
-            ActivateObjectClientRpc(netObjFromStack.NetworkObjectId);
-            return netObjFromStack;
+            // Auto-create pool if it wasn't registered in the Inspector
+            pool = new PoolData { prefab = prefab, initialSize = 0, poolStack = new Stack<NetworkObject>() };
+            pools.Add(pool);
+            prefabToPoolMap[prefab] = pool;
         }
-        return null;
+
+        if (pool.poolStack.Count == 0)
+        {
+            GameObject obj = Instantiate(pool.prefab);
+            NetworkObject netObj = obj.GetComponent<NetworkObject>();
+            netObj.Spawn();
+            return netObj;
+        }
+
+        NetworkObject netObjFromStack = pool.poolStack.Pop();
+        ActivateObjectClientRpc(netObjFromStack.NetworkObjectId);
+        return netObjFromStack;
     }
 
     public void ReturnToPool(GameObject prefab, NetworkObject netObj)
     {
-        if (prefabToPoolMap.TryGetValue(prefab, out PoolData pool))
+        if (!prefabToPoolMap.TryGetValue(prefab, out PoolData pool))
         {
-            pool.poolStack.Push(netObj);
-            DeactivateObjectClientRpc(netObj.NetworkObjectId);
+            // Auto-create pool if it wasn't registered
+            pool = new PoolData { prefab = prefab, initialSize = 0, poolStack = new Stack<NetworkObject>() };
+            pools.Add(pool);
+            prefabToPoolMap[prefab] = pool;
         }
+        
+        pool.poolStack.Push(netObj);
+        DeactivateObjectClientRpc(netObj.NetworkObjectId);
     }
 
     [ClientRpc]

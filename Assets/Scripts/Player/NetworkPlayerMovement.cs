@@ -49,6 +49,14 @@ public class NetworkPlayerMovement : NetworkBehaviour
         if (!IsOwner)
         {
             rb.isKinematic = true;
+            return;
+        }
+
+        CameraFollow cam = FindFirstObjectByType<CameraFollow>();
+
+        if (cam != null)
+        {
+            cam.target = transform;
         }
     }
 
@@ -62,7 +70,7 @@ public class NetworkPlayerMovement : NetworkBehaviour
             sprintPressed = sprintAction.action.IsPressed();
 
             // RunAnimation
-            animator.SetBool("Run", moveInput != Vector2.zero);
+            //animator.SetBool("Run", moveInput != Vector2.zero);
 
             jumpPowTimer += Time.deltaTime;
             // Charge jump
@@ -109,28 +117,66 @@ public class NetworkPlayerMovement : NetworkBehaviour
         animator.SetTrigger("Jump");
         Debug.Log("JumpAnimation Called!");
     }
+
     private void MovePlayer()
     {
         float targetSpeed = sprintPressed ? sprintSpeed : walkSpeed;
-        Vector3 moveDirection = new Vector3(moveInput.x, 0f, moveInput.y).normalized;
 
-        if (transform.parent != null)
+        Camera cam = Camera.main;
+
+        if (cam == null)
         {
-            moveDirection = transform.parent.TransformDirection(moveDirection);
+            cam = FindFirstObjectByType<Camera>();
         }
+
+        if (cam == null) return;
+
+        Vector3 forward = cam.transform.forward;
+        Vector3 right = cam.transform.right;
+
+        // กันตัวละครเดินลอยขึ้นฟ้า
+        forward.y = 0f;
+        right.y = 0f;
+
+        forward.Normalize();
+        right.Normalize();
+
+        Vector3 moveDirection =
+            forward * moveInput.y +
+            right * moveInput.x;
+
+        moveDirection.Normalize();
+
         Vector3 targetVelocity = moveDirection * targetSpeed;
         Vector3 currentVelocity = rb.linearVelocity;
 
-        rb.linearVelocity = new Vector3(targetVelocity.x, currentVelocity.y, targetVelocity.z);
+        rb.linearVelocity = new Vector3(
+            targetVelocity.x,
+            currentVelocity.y,
+            targetVelocity.z
+        );
     }
 
     private void RotatePlayer()
     {
-        Vector3 direction = new Vector3(moveInput.x, 0f, moveInput.y);
-        if (direction != Vector3.zero)
+        Vector3 moveDirection = new Vector3(
+            rb.linearVelocity.x,
+            0f,
+            rb.linearVelocity.z
+        );
+
+        if (moveDirection.sqrMagnitude > 0.01f)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            rb.MoveRotation(Quaternion.Slerp(rb.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime));
+            Quaternion targetRotation =
+                Quaternion.LookRotation(moveDirection);
+
+            rb.MoveRotation(
+                Quaternion.Slerp(
+                    rb.rotation,
+                    targetRotation,
+                    rotationSpeed * Time.fixedDeltaTime
+                )
+            );
         }
     }
 
@@ -156,24 +202,24 @@ public class NetworkPlayerMovement : NetworkBehaviour
 
         var netTransform = GetComponent<NetworkTransform>();
 
-        // ?? �Դ interpolation
+        // ?? ปิด interpolation
         netTransform.Interpolate = false;
 
-        // ?? ��ش�ç������
+        // ?? หยุดแรงทั้งหมด
         rb.linearVelocity = Vector3.zero;
         rb.angularVelocity = Vector3.zero;
 
-        // ?? ���� (�� rb ����� transform)
+        // ?? วาร์ป (ใช้ rb แทน transform)
         rb.position = targetPos;
 
-        // �ѹ physics ��
+        // กัน physics บัค
         rb.Sleep();
 
         yield return new WaitForSeconds(0.15f);
 
         rb.WakeUp();
 
-        // ? �Դ interpolation ��Ѻ
+        // ?? เปิด interpolation กลับ
         netTransform.Interpolate = true;
 
         isTeleporting = false;

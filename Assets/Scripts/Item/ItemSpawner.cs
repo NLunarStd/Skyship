@@ -6,7 +6,7 @@ using UnityEngine;
 public class ItemSpawner : NetworkBehaviour
 {
     [Header("Spawn Settings")]
-    public GameObject itemPrefab; 
+    public System.Collections.Generic.List<GameObject> itemPrefabs; 
     public int totalItems = 10;  
     public float spawnRadius = 5f;
     public float spawnInterval = 0.5f; 
@@ -35,11 +35,15 @@ public class ItemSpawner : NetworkBehaviour
     public void SpawnOneItem()
     {
         if (!IsServer) return;
+        if (itemPrefabs == null || itemPrefabs.Count == 0) return;
 
         Vector2 randomPoint = UnityEngine.Random.insideUnitCircle * spawnRadius;
         Vector3 spawnPos = transform.position + new Vector3(randomPoint.x, 2f, randomPoint.y); // สูงจากพื้นเล็กน้อย
 
-        NetworkObject item = ItemPoolManager.Instance.GetFromPool(itemPrefab);
+        GameObject selectedPrefab = itemPrefabs[UnityEngine.Random.Range(0, itemPrefabs.Count)];
+        if (selectedPrefab == null) return;
+
+        NetworkObject item = ItemPoolManager.Instance.GetFromPool(selectedPrefab);
         if (item != null)
         {
             item.transform.position = spawnPos;
@@ -48,15 +52,20 @@ public class ItemSpawner : NetworkBehaviour
 
             if (item.TryGetComponent<PooledItem>(out var pooledScript))
             {
-                pooledScript.SetSource(this, itemPrefab);
+                pooledScript.SetSource(this, selectedPrefab);
             }
         }
     }
 
+    private bool isSpawning = false;
+
     public void OnItemReturned()
     {
         currentActiveItems--;
-        StartCoroutine(DelayedRespawn());
+        if (isSpawning)
+        {
+            StartCoroutine(DelayedRespawn());
+        }
     }
 
     private IEnumerator DelayedRespawn()
@@ -68,7 +77,14 @@ public class ItemSpawner : NetworkBehaviour
     public void StartSpawning()
     {
         if (!IsServer) return;
-
+        isSpawning = true;
         StartCoroutine(InitialSpawnRoutine());
+    }
+
+    public void StopSpawning()
+    {
+        isSpawning = false;
+        StopAllCoroutines();
+        currentActiveItems = 0;
     }
 }
