@@ -27,6 +27,12 @@ public class PlayerBoost : NetworkBehaviour
     [SerializeField] private InputActionReference speedBoostKey;
     [SerializeField] private InputActionReference jumpBoostKey;
 
+    //new code for vfx from betty
+    [Header("VFX")] 
+    [SerializeField] private ParticleSystem speedBoostVFX;
+    [SerializeField] private ParticleSystem jumpBoostVFX;
+    //new code for vfx from betty
+
     //events
     [SerializeField] EventManager eventManager;
 
@@ -54,20 +60,23 @@ public class PlayerBoost : NetworkBehaviour
 
         if (speedBoostKey.action.WasPressedThisFrame())
         {
-            if (!speedBoostActive && speedBoostPicked )
+            if (!speedBoostActive && speedBoostPicked)
             {
                 Debug.Log("BoostSpeed");
                 speedBoostActive = true;
                 speedBoostTimer = speedBoostDur;
                 EventManager.Instance.TriggerOnSpeedBoostActive();
                 speedBoostPicked = false;
-                
+
                 // Boost both walk and sprint speed
                 networkPlayerMovement.walkSpeed = originalSpeed * speedBoostStr;
                 networkPlayerMovement.sprintSpeed = originalSprint * speedBoostStr;
+
+                //new code for active vfx speedboost from betty
+                if (speedBoostVFX != null) speedBoostVFX.Play();
             }
         }
-        
+
         if (jumpBoostKey.action.WasPressedThisFrame())
         {
             if (!jumpBoostActive && jumpBoostPicked)
@@ -78,6 +87,9 @@ public class PlayerBoost : NetworkBehaviour
                 EventManager.Instance.TriggerOnJumpBoostActive();
                 jumpBoostPicked = false;
                 networkPlayerMovement.jumpForce = originalJump * jumpBoostStr;
+
+                //new code for active vfx jumpboost from betty
+                if (jumpBoostVFX != null) jumpBoostVFX.Play();
             }   
         }
         
@@ -90,6 +102,9 @@ public class PlayerBoost : NetworkBehaviour
                 speedBoostActive = false;
                 networkPlayerMovement.walkSpeed = originalSpeed;
                 networkPlayerMovement.sprintSpeed = originalSprint;
+
+                //new code for close vfx speedboost from betty
+                if (speedBoostVFX != null) speedBoostVFX.Stop();
             }
         }
         
@@ -101,6 +116,9 @@ public class PlayerBoost : NetworkBehaviour
             {
                 jumpBoostActive = false;
                 networkPlayerMovement.jumpForce = originalJump;
+
+                //new code for close vfx jumpboost from betty
+                if (jumpBoostVFX != null) jumpBoostVFX.Stop();
             }
         }
     }
