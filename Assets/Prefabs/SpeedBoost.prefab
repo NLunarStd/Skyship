@@ -217,10 +217,18 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -6067185528594298527, guid: f80ec1a67ee96fb4999d8a99cd254466, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 6fee9bf51950c5f4d95493fd1ab525ca, type: 2}
     - target: {fileID: 919132149155446097, guid: f80ec1a67ee96fb4999d8a99cd254466, type: 3}
       propertyPath: m_Name
       value: Item_Speed
       objectReference: {fileID: 0}
+    - target: {fileID: 3566390031902043909, guid: f80ec1a67ee96fb4999d8a99cd254466, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 02b122946991b744799b58eb38b847c7, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

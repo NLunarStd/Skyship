@@ -60,8 +60,11 @@ public class GameManager : NetworkBehaviour
 
     [Header("End Game UI")]
     public GameObject endGamePanel;
-    public TMP_Text winnerText;
-    public TMP_Text leaderboardText;
+    public TMP_Text[] rankNames;
+    public TMP_Text[] rankScores;
+    public TMP_Text podium1stName;
+    public TMP_Text podium2ndName;
+    public TMP_Text podium3rdName;
     public Button returnLobbyButton;
 
     public NetworkVariable<FixedString32Bytes> playerName1 = new("None");
@@ -253,44 +256,34 @@ public class GameManager : NetworkBehaviour
         SetCursorStateClientRpc(false);
         endGamePanel.SetActive(true);
 
-        // winner
-        int[] scores = { s1, s2, s3, s4 };
-        string[] names = { n1, n2, n3, n4 };
-
-        int maxScore = scores[0];
-        int winnerIndex = 0;
-        int countMax = 1; // นับว่ามีกี่คนที่ได้ max
-
-        for (int i = 1; i < scores.Length; i++)
+        // Sort players by score descending
+        var players = new System.Collections.Generic.List<(string name, int score)>
         {
-            if (scores[i] > maxScore)
+            (n1, s1),
+            (n2, s2),
+            (n3, s3),
+            (n4, s4)
+        };
+
+        players.Sort((a, b) => b.score.CompareTo(a.score));
+
+        // Assign to Leaderboard UI
+        if (rankNames != null && rankScores != null)
+        {
+            for (int i = 0; i < 4; i++)
             {
-                maxScore = scores[i];
-                winnerIndex = i;
-                countMax = 1;
-            }
-            else if (scores[i] == maxScore)
-            {
-                countMax++;
+                if (i < rankNames.Length && rankNames[i] != null)
+                    rankNames[i].text = players[i].name;
+
+                if (i < rankScores.Length && rankScores[i] != null)
+                    rankScores[i].text = players[i].score.ToString();
             }
         }
 
-        // ?? ตัดสินผล
-        if (countMax > 1)
-        {
-            winnerText.text = "No Winner";
-        }
-        else
-        {
-            winnerText.text = $"Winner: {names[winnerIndex]}";
-        }
-
-        // leaderboard
-        leaderboardText.text =
-            $"{names[0]} : {s1}\n" +
-            $"{names[1]} : {s2}\n" +
-            $"{names[2]} : {s3}\n" +
-            $"{names[3]} : {s4}";
+        // Assign to Podium UI
+        if (podium1stName != null) podium1stName.text = players[0].name;
+        if (podium2ndName != null) podium2ndName.text = players[1].name;
+        if (podium3rdName != null) podium3rdName.text = players[2].name;
 
         // ปุ่ม host เท่านั้น
         bool isHost = NetworkManager.Singleton.IsHost;
@@ -317,6 +310,7 @@ public class GameManager : NetworkBehaviour
         foreach (var spawner in FindObjectsOfType<ItemSpawner>()) { spawner.StopSpawning(); }
         foreach (var pooledItem in FindObjectsOfType<PooledItem>()) { if (pooledItem.gameObject.activeInHierarchy) pooledItem.ReturnToPool(); }
         foreach (var ship in FindObjectsOfType<NetworkShipHandler>()) { ship.ResetShip(); }
+        foreach (var boost in FindObjectsOfType<BoostPickup>()) { boost.ResetBoost(); }
 
         matchTime = 300f;
         isGameStarted = false;

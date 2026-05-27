@@ -221,6 +221,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Item_Jump
       objectReference: {fileID: 0}
+    - target: {fileID: 3566390031902043909, guid: 6286454da9da581418a08b705dc8dd13, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 02b122946991b744799b58eb38b847c7, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

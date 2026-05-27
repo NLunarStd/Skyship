@@ -134,8 +134,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Outline
   outlineMode: 1
-  outlineColor: {r: 1, g: 0.9716885, b: 0.0990566, a: 1}
-  outlineWidth: 8
+  outlineColor: {r: 0.15258802, g: 0.7735849, b: 0.025542913, a: 1}
+  outlineWidth: 10
   precomputeOutline: 1
   bakeKeys:
   - {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
@@ -307,6 +307,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ScorableItem
   itemFaction: 2
   ScoreValue: 3
+  minScore: 4
+  maxScore: 10
 --- !u!114 &-3845060998065455080
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -383,6 +385,10 @@ PrefabInstance:
       propertyPath: m_ConstrainProportionsScale
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 97ad18fcb9b66454e961afafe5f9b062, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 3c97aa363c586a04da61e1442788c99b, type: 2}
     - target: {fileID: 919132149155446097, guid: 97ad18fcb9b66454e961afafe5f9b062, type: 3}
       propertyPath: m_Name
       value: Diamond
