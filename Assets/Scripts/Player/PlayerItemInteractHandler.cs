@@ -6,6 +6,11 @@ using UnityEngine.UI;
 
 public class PlayerItemInteractHandler : NetworkBehaviour
 {
+    [Header("Sound Effects")]
+    public AudioClip pickupSfx;
+    public AudioClip dropSfx;
+    public AudioClip throwSfx;
+
     [Header("Animator")]
     public Animator animator;
 
@@ -129,6 +134,7 @@ public class PlayerItemInteractHandler : NetworkBehaviour
                 {
                     RequestPickUpServerRpc(networkObj.NetworkObjectId);
                     GrabAnimation();
+                    SFXManager.Instance.PlaySFX2D(pickupSfx);
                 }
             }
             else if (IsHoldingItem)
@@ -147,6 +153,7 @@ public class PlayerItemInteractHandler : NetworkBehaviour
             {
                 RequestDropServerRpc();
                 UnGrabAnimation();
+                SFXManager.Instance.PlaySFX2D(dropSfx);
             }
             else
             {
@@ -154,6 +161,7 @@ public class PlayerItemInteractHandler : NetworkBehaviour
                 float finalForce = Mathf.Lerp(minThrowForce, maxThrowForce, chargeRatio);
                 RequestThrowServerRpc(finalForce);
                 UnGrabAnimation();
+                SFXManager.Instance.PlaySFX2D(throwSfx);
             }
         }
     }

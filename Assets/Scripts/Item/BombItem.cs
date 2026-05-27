@@ -13,10 +13,27 @@ public class BombItem : NetworkBehaviour, IPickable, IThrowable
     private bool isArmed = false;
     private Coroutine explosionCoroutine;
     private PooledItem pooledItem;
+    
+    private Renderer[] renderers;
+    private Color[] originalColors;
+
+    [Header("Audio")]
+    public AudioClip throwDropSound;
+    public AudioClip explosionSound;
 
     private void Awake()
     {
         pooledItem = GetComponent<PooledItem>();
+    }
+
+    private void Start()
+    {
+        renderers = GetComponentsInChildren<Renderer>();
+        originalColors = new Color[renderers.Length];
+        for (int i = 0; i < renderers.Length; i++)
+        {
+            if (renderers[i] != null) originalColors[i] = renderers[i].material.color;
+        }
     }
 
     public void PickUp()
@@ -57,6 +74,12 @@ public class BombItem : NetworkBehaviour, IPickable, IThrowable
     private void ArmBombClientRpc()
     {
         isArmed = true;
+
+        if (SFXManager.Instance != null && throwDropSound != null)
+        {
+            SFXManager.Instance.PlaySFXAtPosition(throwDropSound, transform.position);
+        }
+
         StartCoroutine(BlinkRed());
     }
 
@@ -64,26 +87,30 @@ public class BombItem : NetworkBehaviour, IPickable, IThrowable
     private void DisarmBombClientRpc()
     {
         isArmed = false;
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
-        foreach (var r in renderers)
+        if (renderers != null && originalColors != null)
         {
-            if (r != null) r.material.color = Color.white;
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null) renderers[i].material.color = originalColors[i];
+            }
         }
     }
 
     private IEnumerator BlinkRed()
     {
-        Renderer[] renderers = GetComponentsInChildren<Renderer>();
+        if (renderers == null || originalColors == null) yield break;
+
         while (isArmed)
         {
-            foreach (var r in renderers)
+            for (int i = 0; i < renderers.Length; i++)
             {
-                if (r != null) r.material.color = Color.red;
+                if (renderers[i] != null) renderers[i].material.color = Color.red;
             }
             yield return new WaitForSeconds(0.2f);
-            foreach (var r in renderers)
+            
+            for (int i = 0; i < renderers.Length; i++)
             {
-                if (r != null) r.material.color = Color.white;
+                if (renderers[i] != null) renderers[i].material.color = originalColors[i];
             }
             yield return new WaitForSeconds(0.2f);
         }
@@ -158,6 +185,11 @@ public class BombItem : NetworkBehaviour, IPickable, IThrowable
         if (explosionEffectPrefab != null)
         {
             Instantiate(explosionEffectPrefab, transform.position, Quaternion.identity);
+        }
+
+        if (SFXManager.Instance != null && explosionSound != null)
+        {
+            SFXManager.Instance.PlaySFXAtPosition(explosionSound, transform.position);
         }
     }
 }

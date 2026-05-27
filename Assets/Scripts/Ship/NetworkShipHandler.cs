@@ -8,6 +8,9 @@ public class NetworkShipHandler : NetworkBehaviour
     public Renderer[] colorMeshes;
     public NetworkVariable<Color> shipColor = new NetworkVariable<Color>(Color.white, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
 
+    [Header("Ship Audio")]
+    public AudioSource engineAudioSource;
+
     [Header("Engine & Speed")]
     public NetworkVariable<bool> EngineOn = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     public float moveSpeed = 10f;
@@ -61,6 +64,23 @@ public class NetworkShipHandler : NetworkBehaviour
 
         shipColor.OnValueChanged += (oldC, newC) => ApplyColor(newC);
         ApplyColor(shipColor.Value);
+
+        EngineOn.OnValueChanged += (oldVal, newVal) => ToggleEngineAudio(newVal);
+        ToggleEngineAudio(EngineOn.Value);
+    }
+
+    private void ToggleEngineAudio(bool isOn)
+    {
+        if (engineAudioSource == null) return;
+
+        if (isOn)
+        {
+            if (!engineAudioSource.isPlaying) engineAudioSource.Play();
+        }
+        else
+        {
+            if (engineAudioSource.isPlaying) engineAudioSource.Stop();
+        }
     }
 
     private void ApplyColor(Color color)

@@ -27,6 +27,10 @@ public class PlayerBoost : NetworkBehaviour
     [SerializeField] private InputActionReference speedBoostKey;
     [SerializeField] private InputActionReference jumpBoostKey;
 
+    [Header("Sound Effects")]
+    [SerializeField] private AudioClip pickupSound;
+    [SerializeField] private AudioClip useBoostSound;
+
     //new code for vfx from betty
     [Header("VFX")] 
     [SerializeField] private ParticleSystem speedBoostVFX;
@@ -74,6 +78,11 @@ public class PlayerBoost : NetworkBehaviour
 
                 //new code for active vfx speedboost from betty
                 if (speedBoostVFX != null) speedBoostVFX.Play();
+                
+                if (SFXManager.Instance != null && useBoostSound != null)
+                {
+                    SFXManager.Instance.PlaySFX2D(useBoostSound);
+                }
             }
         }
 
@@ -90,6 +99,11 @@ public class PlayerBoost : NetworkBehaviour
 
                 //new code for active vfx jumpboost from betty
                 if (jumpBoostVFX != null) jumpBoostVFX.Play();
+
+                if (SFXManager.Instance != null && useBoostSound != null)
+                {
+                    SFXManager.Instance.PlaySFX2D(useBoostSound);
+                }
             }   
         }
         
@@ -145,6 +159,11 @@ public class PlayerBoost : NetworkBehaviour
         // event call
         EventManager.Instance.TriggerOnSpeedBoostPickup();
         Debug.Log("Collided with speed boost");
+
+        if (SFXManager.Instance != null && pickupSound != null)
+        {
+            SFXManager.Instance.PlaySFX2D(pickupSound);
+        }
     }
 
     private void OnJumpPikcup()
@@ -154,6 +173,11 @@ public class PlayerBoost : NetworkBehaviour
         // event call
         EventManager.Instance.TriggerOnJumpBoostPickup();
         Debug.Log("Collided with jump boost");
+
+        if (SFXManager.Instance != null && pickupSound != null)
+        {
+            SFXManager.Instance.PlaySFX2D(pickupSound);
+        }
     }
     
 }

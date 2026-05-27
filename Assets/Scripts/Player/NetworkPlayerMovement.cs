@@ -8,6 +8,9 @@ using UnityEngine.Rendering.VirtualTexturing;
 [RequireComponent(typeof(Rigidbody))]
 public class NetworkPlayerMovement : NetworkBehaviour
 {
+    [Header("Sound Effects")]
+    public AudioClip JumpSfx;
+
     [Header("Animator")]
     public Animator animator;
 
@@ -77,7 +80,7 @@ public class NetworkPlayerMovement : NetworkBehaviour
             if (jumpAction.action.WasPressedThisFrame() && Time.time >= nextJumpTime)
             {
                 jumpPowTimer = 0;
-                JumpAnimation();
+                //JumpAnimation();
             }
 
             if (jumpAction.action.WasReleasedThisFrame() && Time.time >= nextJumpTime)
@@ -85,7 +88,7 @@ public class NetworkPlayerMovement : NetworkBehaviour
                 jumpPower = (jumpPowTimer/4 + 1) * jumpForce;
                 HandleJump(jumpPower);
                 nextJumpTime = Time.time + jumpCooldown;
-                JumpAnimation();
+                //JumpAnimation();
             }
             
             // Original jump
@@ -116,6 +119,27 @@ public class NetworkPlayerMovement : NetworkBehaviour
     {
         animator.SetTrigger("Jump");
         Debug.Log("JumpAnimation Called!");
+    }
+
+    void PlayJumpSFX()
+    {
+        SFXManager.Instance.PlaySFX2D(JumpSfx);
+
+        //PlayJumpSoundServerRpc(transform.position);
+    }
+
+    [ServerRpc]
+    private void PlayJumpSoundServerRpc(Vector3 pos)
+    {
+        PlayJumpSoundClientRpc(pos);
+    }
+    [ClientRpc]
+    private void PlayJumpSoundClientRpc(Vector3 pos)
+    {
+        // ถ้าเป็นเครื่องตัวเอง ไม่ต้องเล่นซ้ำ (เพราะเล่นแบบ 2D ไปแล้ว)
+        if (IsOwner) return;
+        // เล่นเสียงกระโดดของเพื่อน แบบ 3D (ใครอยู่ไกลก็จะได้ยินเบาลง)
+        SFXManager.Instance.PlaySFXAtPosition(JumpSfx, pos);
     }
 
     private void MovePlayer()
@@ -184,6 +208,8 @@ public class NetworkPlayerMovement : NetworkBehaviour
     {
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
         rb.AddForce(transform.up * jumpPower, ForceMode.Impulse);
+        PlayJumpSFX();
+        JumpAnimation();
     }
 
     private void ControlDrag()
