@@ -39,9 +39,12 @@ public class ItemPoolManager : NetworkBehaviour
     //    }
     //}
 
+    private bool isInitialized = false;
+
     public void InitializePools()
     {
-        if (!IsServer) return;
+        if (!IsServer || isInitialized) return;
+        isInitialized = true;
 
         foreach (var pool in pools)
         {

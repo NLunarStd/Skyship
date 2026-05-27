@@ -26,15 +26,31 @@ public class BombItem : NetworkBehaviour, IPickable, IThrowable
     private void Awake()
     {
         pooledItem = GetComponent<PooledItem>();
-    }
-
-    private void Start()
-    {
+        
         renderers = GetComponentsInChildren<Renderer>();
         originalColors = new Color[renderers.Length];
         for (int i = 0; i < renderers.Length; i++)
         {
             if (renderers[i] != null) originalColors[i] = renderers[i].material.color;
+        }
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        isArmed = false;
+        if (explosionCoroutine != null)
+        {
+            StopCoroutine(explosionCoroutine);
+            explosionCoroutine = null;
+        }
+        
+        // Reset colors
+        if (renderers != null && originalColors != null)
+        {
+            for (int i = 0; i < renderers.Length; i++)
+            {
+                if (renderers[i] != null) renderers[i].material.color = originalColors[i];
+            }
         }
     }
 

@@ -146,17 +146,26 @@ public class NetworkPlayerMovement : NetworkBehaviour
     {
         float targetSpeed = sprintPressed ? sprintSpeed : walkSpeed;
 
-        Camera cam = Camera.main;
+        Vector3 forward = Vector3.forward;
+        Vector3 right = Vector3.right;
 
-        if (cam == null)
+        // เช็คว่าถ้าอยู่ใน Lobby ให้ใช้กล้อง Lobby ไม่งั้นใช้ Camera.main
+        if (GameManager.instance != null && GameManager.instance.IsInLobby() && GameManager.instance.lobbyCam != null)
         {
-            cam = FindFirstObjectByType<Camera>();
+            forward = GameManager.instance.lobbyCam.transform.forward;
+            right = GameManager.instance.lobbyCam.transform.right;
         }
+        else
+        {
+            Camera cam = Camera.main;
+            if (cam == null) cam = FindFirstObjectByType<Camera>();
 
-        if (cam == null) return;
-
-        Vector3 forward = cam.transform.forward;
-        Vector3 right = cam.transform.right;
+            if (cam != null)
+            {
+                forward = cam.transform.forward;
+                right = cam.transform.right;
+            }
+        }
 
         // กันตัวละครเดินลอยขึ้นฟ้า
         forward.y = 0f;

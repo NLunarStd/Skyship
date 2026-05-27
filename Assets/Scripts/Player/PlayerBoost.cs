@@ -179,5 +179,31 @@ public class PlayerBoost : NetworkBehaviour
             SFXManager.Instance.PlaySFX2D(pickupSound);
         }
     }
-    
+
+    public void ResetAllBoosts()
+    {
+        speedBoostPicked = false;
+        jumpBoostPicked = false;
+        
+        if (speedBoostActive)
+        {
+            speedBoostActive = false;
+            networkPlayerMovement.walkSpeed = originalSpeed;
+            networkPlayerMovement.sprintSpeed = originalSprint;
+            if (speedBoostVFX != null) speedBoostVFX.Stop();
+        }
+        
+        if (jumpBoostActive)
+        {
+            jumpBoostActive = false;
+            networkPlayerMovement.jumpForce = originalJump;
+            if (jumpBoostVFX != null) jumpBoostVFX.Stop();
+        }
+        
+        if (IsOwner)
+        {
+            EventManager.Instance.TriggerOnSpeedBoostActive();
+            EventManager.Instance.TriggerOnJumpBoostActive();
+        }
+    }
 }

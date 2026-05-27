@@ -2159,7 +2159,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4977156196960234058, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.47
+      value: 3.4
       objectReference: {fileID: 0}
     - target: {fileID: 4977156196960234058, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -6195,7 +6195,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4977156196960234058, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.47
+      value: 3.4
       objectReference: {fileID: 0}
     - target: {fileID: 4977156196960234058, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -8027,7 +8027,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4977156196960234058, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.47
+      value: 3.4
       objectReference: {fileID: 0}
     - target: {fileID: 4977156196960234058, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_LocalPosition.z
@@ -9865,7 +9865,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 13, y: 0}
-  m_SizeDelta: {x: 415.9189, y: 293}
+  m_SizeDelta: {x: 415.9189, y: 355}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &963204420
 MonoBehaviour:
@@ -9889,18 +9889,23 @@ MonoBehaviour:
       m_Calls: []
   m_text: '-Contorls-
 
-    spacebar - Jump
+    Scrool Wheel - Zoom In/Out
 
-    F - Pick up/ Drop
+    L Shift - Sprint
 
-    hold F - Throw
-    Item
+    spacebar
+    - Jump
 
-    G - On/Off Ship Engine
+    F - Grab / Drop / Sail Ship
 
-    V - Use speed boost
+    hold F - Throw Item
 
-    C - Use Jump boost'
+    G - On/Off
+    Ship Engine
+
+    C - Use Jump boost
+
+    V - Use Speed boost'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: d603fd40b1ad7014f951c6305e17c95a, type: 2}
   m_sharedMaterial: {fileID: -7687391345198806481, guid: d603fd40b1ad7014f951c6305e17c95a, type: 2}
@@ -15948,8 +15953,8 @@ Transform:
   m_GameObject: {fileID: 1484786010}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3.22, y: 1, z: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -0.00000023842}
+  m_LocalScale: {x: 6.427442, y: 1, z: 2.3993716}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1693302925}
@@ -23881,7 +23886,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4977156196960234058, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.47
+      value: 3.4
       objectReference: {fileID: 0}
     - target: {fileID: 4977156196960234058, guid: a680d8291f3416249a50d9abfb02374a, type: 3}
       propertyPath: m_LocalPosition.z

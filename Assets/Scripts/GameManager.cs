@@ -336,6 +336,7 @@ public class GameManager : NetworkBehaviour
             if (IsServer) ship.shipColor.Value = Color.white;
         }
         foreach (var boost in FindObjectsOfType<BoostPickup>()) { boost.ResetBoost(); }
+        foreach (var pBoost in FindObjectsOfType<PlayerBoost>()) { pBoost.ResetAllBoosts(); }
 
         matchTime = 300f;
         isGameStarted = false;
@@ -510,6 +511,8 @@ public class GameManager : NetworkBehaviour
     [ClientRpc]
     private void SwitchToGameplayUIClientRpc()
     {
+        isInLobby = false;
+
         mainCam.gameObject.SetActive(true);
         lobbyCam.gameObject.SetActive(false);
 
