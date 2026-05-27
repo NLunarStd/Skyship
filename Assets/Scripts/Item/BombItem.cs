@@ -11,6 +11,8 @@ public class BombItem : NetworkBehaviour, IPickable, IThrowable
     public GameObject explosionEffectPrefab; 
     
     private bool isArmed = false;
+    public bool IsArmed => isArmed;
+    
     private Coroutine explosionCoroutine;
     private PooledItem pooledItem;
     

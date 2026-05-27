@@ -297,7 +297,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BombItem
   ShowTopMostFoldoutHeaderGroup: 1
   explosionDelay: 3
-  explosionRadius: 5
+  explosionRadius: 8
   explosionEffectPrefab: {fileID: 7403103098228120956, guid: 513099c3c135b01439895582ca4ec420, type: 3}
   throwDropSound: {fileID: 8300000, guid: e83b7b5abad56fd4087280b9aea9850e, type: 3}
   explosionSound: {fileID: 8300000, guid: f47add2669745334caa25401503165db, type: 3}

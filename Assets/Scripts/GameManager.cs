@@ -47,6 +47,7 @@ public class GameManager : NetworkBehaviour
     public TextMeshProUGUI countDownInThree;
     public float scaleUpMultiplier = 1.5f;
     public float animationSpeed = 5f;
+    public AudioClip startSound;
 
     [Header("Player reference")]
     public PlayerUI[] playerUIs;
@@ -164,6 +165,15 @@ public class GameManager : NetworkBehaviour
         foreach (var step in countdownSteps)
         {
             countDownInThree.text = step;
+            
+            if (SFXManager.Instance != null)
+            {
+                if (step == "Start!") 
+                {
+                    if (startSound != null) SFXManager.Instance.PlaySFX2D(startSound);
+                }
+            }
+
             yield return StartCoroutine(AnimateTextScale(countDownInThree.transform));
         }
 

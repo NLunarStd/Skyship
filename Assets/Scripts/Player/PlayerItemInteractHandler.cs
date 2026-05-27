@@ -94,6 +94,13 @@ public class PlayerItemInteractHandler : NetworkBehaviour
         if (Physics.Raycast(ray, out RaycastHit hit, liftDistance, interactableLayer))
         {
             GameObject hitObj = hit.collider.gameObject;
+            var bomb = hitObj.GetComponent<BombItem>();
+            if (bomb != null && bomb.IsArmed)
+            {
+                ClearHoveredState();
+                return;
+            }
+
             if (hitObj != hoveredObject)
             {
                 ClearHoveredState();

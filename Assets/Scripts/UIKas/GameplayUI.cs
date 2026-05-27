@@ -4,10 +4,9 @@ using UnityEngine.UI;
 
 public class GameplayUI : MonoBehaviour
 {
-    private GameObject speedPanel;
-    private GameObject jumpPanel;
-    private Image speedImage;
-    private Image jumpImage;
+    [Header("Boost Icons")]
+    [SerializeField] private Image speedImage;
+    [SerializeField] private Image jumpImage;
 
     private void Awake()
     {
@@ -26,40 +25,42 @@ public class GameplayUI : MonoBehaviour
     }
     void Start()
     {
-        speedPanel = transform.GetChild(4).gameObject;
-        jumpPanel = transform.GetChild(5).gameObject;
-        
-        speedImage = speedPanel.transform.GetChild(0).gameObject.GetComponent<Image>();
-        
-        jumpImage = jumpPanel.transform.GetChild(0).gameObject.GetComponent<Image>();
-        
-        Debug.Log(speedImage.name + " name of speed | name of jump " + jumpImage.name);
+        // ทำให้ไอคอนโชว์ตลอดเวลาแต่มืดลง (สว่างเฉพาะตอนเก็บ)
+        if (speedImage != null)
+        {
+            speedImage.enabled = true;
+            speedImage.color = new Color(0.3f, 0.3f, 0.3f, 0.8f); // มืด
+        }
+
+        if (jumpImage != null)
+        {
+            jumpImage.enabled = true;
+            jumpImage.color = new Color(0.3f, 0.3f, 0.3f, 0.8f); // มืด
+        }
     }
 
     private void OnSpeedUse()
     {
         Debug.Log("OnSpeedUse");
-        speedImage.enabled = false;
+        if (speedImage != null) speedImage.color = new Color(0.3f, 0.3f, 0.3f, 0.8f); // กลับไปมืด
     }
 
     private void OnJumpUse()
     {
         Debug.Log("OnJumpUse");
-        jumpImage.enabled = false;
+        if (jumpImage != null) jumpImage.color = new Color(0.3f, 0.3f, 0.3f, 0.8f); // กลับไปมืด
     }
 
     private void OnSpeedPick()
     {
         Debug.Log("OnSpeedPick");
-        speedImage.enabled = true;
-        Debug.Log(speedImage.name + speedImage.enabled);
+        if (speedImage != null) speedImage.color = Color.white; // สว่าง 100%
     }
 
     private void OnJumpPick()
     {
         Debug.Log("OnJumpPick");
-        jumpImage.enabled = true;
-        Debug.Log(jumpImage.name + jumpImage.enabled);
+        if (jumpImage != null) jumpImage.color = Color.white; // สว่าง 100%
     }
     
 }
