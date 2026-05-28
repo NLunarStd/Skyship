@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
@@ -308,6 +308,7 @@ public class ConnectionManager : NetworkBehaviour
     public void OnLeaveButtonClick()
     {
         isLeavingManually = true;
+        isConnecting = false;
 
         if (NetworkManager.Singleton != null)
         {
@@ -324,27 +325,34 @@ public class ConnectionManager : NetworkBehaviour
     // -------------------------
     // RELAY HOST / JOIN
     // -------------------------
+    private bool isConnecting = false;
+
     public async void StartHostWithRoom()
     {
+        if (isConnecting) return;
+        isConnecting = true;
+
         string username = LoginManager.LocalUsername;
         LocalUsername = username;
 
         string joinCode = await relayManager.StartHostWithRelay(username, 0);
 
         roomCodeNet.Value = joinCode.ToString();
-
-        //roomCodeDisplay.text = "Room Code: " + joinCode;
-
-
+        
+        isConnecting = false;
     }
 
     public async void StartClientWithRoom()
     {
+        if (isConnecting) return;
+        isConnecting = true;
+
         string code = roomCodeInput.text.Trim();
 
         if (string.IsNullOrEmpty(code))
         {
             SetError("Enter room code");
+            isConnecting = false;
             return;
         }
 
@@ -356,11 +364,12 @@ public class ConnectionManager : NetworkBehaviour
         if (!success)
         {
             SetError("Join failed");
+            isConnecting = false;
             return;
         }
 
         GameManager.instance.EnterLobby();
-
+        isConnecting = false;
     }
 
     // -------------------------

@@ -35,7 +35,7 @@ public class BombItem : NetworkBehaviour, IPickable, IThrowable
         }
     }
 
-    public override void OnNetworkSpawn()
+    private void OnEnable()
     {
         isArmed = false;
         if (explosionCoroutine != null)
@@ -146,28 +146,58 @@ public class BombItem : NetworkBehaviour, IPickable, IThrowable
         isArmed = false;
         DisarmBombClientRpc();
         
-        // Find players within explosion radius
-        Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
-        foreach (Collider hit in hits)
+        // Find players within explosion radius by checking distance to all connected clients
+        // This ensures driving players are hit even if their physics colliders are disabled
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
-            if (hit.CompareTag("Player"))
+            var playerObj = client.PlayerObject;
+            if (playerObj != null)
             {
-                var netObj = hit.GetComponentInParent<NetworkObject>();
-                if (netObj != null)
+                float distance = Vector3.Distance(transform.position, playerObj.transform.position);
+                if (distance <= explosionRadius)
                 {
-                    // Calculate center position based on DeadPlaneController (if exists)
-                    Vector3 centerPos = new Vector3(0, 10f, 0); 
+                    Vector3 targetTeleportPos = new Vector3(0, 10f, 0); 
                     var deadPlane = FindFirstObjectByType<DeadPlaneController>();
                     if (deadPlane != null)
                     {
-                        centerPos = Vector3.zero + deadPlane.respawnOffset;
+                        targetTeleportPos = Vector3.zero + deadPlane.respawnOffset;
                     }
                     
-                    // Use GameManager to smoothly teleport the player
                     if (GameManager.instance != null)
                     {
-                        GameManager.instance.TeleportClientRpc(centerPos, netObj.OwnerClientId);
+                        var movement = playerObj.GetComponent<NetworkPlayerMovement>();
+                        if (movement != null)
+                        {
+                            movement.ForceExitShipClientRpc();
+                        }
+                        
+                        if (ConnectionManager.Instance != null)
+                        {
+                            int slot = ConnectionManager.Instance.GetPlayerSlot(client.ClientId);
+                            Vector3 spawnPos = GameManager.instance.GetGameSpawnPosition(slot);
+                            if (spawnPos != Vector3.zero)
+                            {
+                                targetTeleportPos = spawnPos;
+                            }
+                        }
+
+                        GameManager.instance.TeleportClientRpc(targetTeleportPos, client.ClientId);
                     }
+                }
+            }
+        }
+
+        // Find ships within explosion radius to stop them
+        Collider[] hits = Physics.OverlapSphere(transform.position, explosionRadius);
+        foreach (Collider hit in hits)
+        {
+            if (hit.CompareTag("Ship") || hit.CompareTag("ShipCore"))
+            {
+                var shipHandler = hit.GetComponentInParent<NetworkShipHandler>();
+                if (shipHandler != null)
+                {
+                    shipHandler.EngineOn.Value = false;
+                    shipHandler.ForceStop();
                 }
             }
         }

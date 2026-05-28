@@ -89,6 +89,11 @@ public class GameManager : NetworkBehaviour
         MenuCanvas.SetActive(false);
         LobbyCanvas.SetActive(true);
         GamePlayCanvas.SetActive(false);
+        if (endGamePanel != null) endGamePanel.SetActive(false);
+        
+        isInLobby = true;
+        if (mainCam != null) mainCam.gameObject.SetActive(false);
+        if (lobbyCam != null) lobbyCam.gameObject.SetActive(true);
 
         SetupLobbyUI();
     }
@@ -98,6 +103,11 @@ public class GameManager : NetworkBehaviour
         MenuCanvas.SetActive(true);
         LobbyCanvas.SetActive(false);
         GamePlayCanvas.SetActive(false);
+        if (endGamePanel != null) endGamePanel.SetActive(false);
+        
+        isInLobby = true;
+        if (mainCam != null) mainCam.gameObject.SetActive(false);
+        if (lobbyCam != null) lobbyCam.gameObject.SetActive(true);
     }
 
 
@@ -329,6 +339,7 @@ public class GameManager : NetworkBehaviour
     private void ResetGame()
     {
         foreach (var spawner in FindObjectsOfType<ItemSpawner>()) { spawner.StopSpawning(); }
+        foreach (var handler in FindObjectsOfType<PlayerItemInteractHandler>()) { handler.ServerForceDropItem(); }
         foreach (var pooledItem in FindObjectsOfType<PooledItem>()) { if (pooledItem.gameObject.activeInHierarchy) pooledItem.ReturnToPool(); }
         foreach (var ship in FindObjectsOfType<NetworkShipHandler>()) 
         { 
@@ -518,12 +529,25 @@ public class GameManager : NetworkBehaviour
 
         LobbyCanvas.SetActive(false);
         GamePlayCanvas.SetActive(true);
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.SpawnManager != null)
+        {
+            var localPlayer = NetworkManager.Singleton.SpawnManager.GetLocalPlayerObject();
+            if (localPlayer != null)
+            {
+                var camFollow = mainCam.GetComponent<CameraFollow>();
+                if (camFollow != null)
+                {
+                    camFollow.target = localPlayer.transform;
+                }
+            }
+        }
     }
 
     [SerializeField] private Transform[] gameSpawnPoints;
     [SerializeField] private NetworkShipHandler[] playerShips;
 
-    private Vector3 GetGameSpawnPosition(int slot)
+    public Vector3 GetGameSpawnPosition(int slot)
     {
         if (slot >= 0 && slot < gameSpawnPoints.Length)
         {

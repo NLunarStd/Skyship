@@ -207,6 +207,24 @@ public class PlayerItemInteractHandler : NetworkBehaviour
         heldItemRef.Value = new NetworkObjectReference();
     }
 
+    public void ServerForceDropItem()
+    {
+        if (!IsServer) return;
+        if (!heldItemRef.Value.TryGet(out NetworkObject netObj)) return;
+
+        ToggleNetworkTransformClientRpc(netObj.NetworkObjectId, true);
+        SetItemLayerClientRpc(netObj.NetworkObjectId, itemLayerName);
+        SetItemTriggerClientRpc(netObj.NetworkObjectId, false);
+
+        if (netObj.TryGetComponent<Rigidbody>(out Rigidbody rb))
+        {
+            rb.isKinematic = false;
+        }
+
+        netObj.GetComponent<IPickable>()?.Drop();
+        heldItemRef.Value = new NetworkObjectReference();
+    }
+
     [ServerRpc]
     private void RequestThrowServerRpc(float force)
     {

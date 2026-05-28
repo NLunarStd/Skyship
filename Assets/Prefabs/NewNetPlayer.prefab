@@ -367,7 +367,7 @@ MonoBehaviour:
   itemLayerName: Item
   heldItemLayerName: HeldItem
   minThrowForce: 5
-  maxThrowForce: 25
+  maxThrowForce: 15
   chargeTimeForMaxPower: 2
   upwardArcForce: 0.25
   tumbleIntensity: 5

@@ -259,4 +259,20 @@ public class NetworkPlayerMovement : NetworkBehaviour
 
         isTeleporting = false;
     }
+
+    [ClientRpc]
+    public void ForceExitShipClientRpc()
+    {
+        if (!IsOwner) return;
+
+        var steerings = FindObjectsOfType<SteeringInteract>();
+        foreach (var steering in steerings)
+        {
+            if (steering.IsCurrentController(gameObject))
+            {
+                steering.ExitShipControl();
+                break;
+            }
+        }
+    }
 }
